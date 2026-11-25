@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F7F1E3">
+<title>STAR FORGE · Form 1 Maths</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* RISO INKS: four colours only. Overprints (multiply) make the in-between colours. */
+  :root {
+    --pink: #FF48B0; --blue: #0078BF; --yellow: #FFE800; --paper: #F7F1E3;
+    --red: #FF4100;            /* what pink printed over yellow looks like */
+    --ARC: var(--pink); --BET: var(--red); --CAP: var(--blue);
+    --head: 'Bowlby One', 'Arial Black', Impact, serif;
+    --body: 'Courier Prime', 'Courier New', monospace;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--paper); color: var(--blue); font-family: var(--body); font-size: 17px; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 30; background-image: var(--grain); opacity: .55; mix-blend-mode: multiply; }
+  #sky { position: absolute; left: 0; top: 0; width: 100%; z-index: 0; }
+  #fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
+  #app { position: relative; z-index: 2; max-width: 560px; margin: 0 auto; padding: 0 14px 40px; }
+  body.wide #app { max-width: none; }
+
+  /* riso type: blue ink with a pink plate slightly off-register */
+  .h { font-family: var(--head); text-transform: uppercase; letter-spacing: .5px; line-height: 1; color: var(--blue); text-shadow: 2px 2px 0 rgba(255,72,176,.75); margin: 0; }
+  .h.xl { font-size: 2.6rem; } .h.l { font-size: 1.7rem; } .h.m { font-size: 1.2rem; } .h.s { font-size: .95rem; }
+  .ink-ARC { color: var(--pink) !important; text-shadow: 2px 2px 0 rgba(0,120,191,.45) !important; }
+  .ink-BET { color: var(--red) !important; text-shadow: 2px 2px 0 rgba(255,232,0,.9) !important; }
+  .ink-CAP { color: var(--blue) !important; text-shadow: 2px 2px 0 rgba(255,232,0,.95) !important; }
+  .typed { font-family: var(--body); font-size: .95rem; line-height: 1.45; }
+
+  /* stickers instead of buttons/cards */
+  .sticker { position: relative; display: block; width: 100%; border: 3px solid var(--blue); background: var(--yellow); color: var(--blue);
+    font-family: var(--head); font-size: 1.35rem; text-transform: uppercase; padding: 16px 12px 14px; cursor: pointer; transform: rotate(-1.2deg);
+    box-shadow: 6px 6px 0 var(--pink); border-radius: 4px 14px 6px 12px; margin: 12px 0; touch-action: manipulation; }
+  .sticker:active { transform: rotate(-1.2deg) translate(4px,4px); box-shadow: 2px 2px 0 var(--pink); }
+  .sticker.alt { background: var(--paper); transform: rotate(1deg); font-size: 1rem; box-shadow: 4px 4px 0 var(--blue); }
+  .sticker:disabled { opacity: .45; }
+  .slip { position: relative; background: var(--paper); border: 2px dashed var(--blue); padding: 12px 14px; margin: 12px 0; transform: rotate(.4deg); }
+  .slip.tilt { transform: rotate(-.6deg); }
+  .stamp { display: inline-block; border: 3px solid var(--pink); color: var(--pink); font-family: var(--head); padding: 3px 8px; transform: rotate(-4deg); font-size: .85rem; text-transform: uppercase; }
+  input.typein { width: 100%; font-family: var(--head); font-size: 1.4rem; color: var(--blue); background: transparent; border: 0; border-bottom: 4px solid var(--blue); padding: 8px 2px; outline: none; }
+  input.typein::placeholder { color: #0078BFAA; }
+
+  .starpick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0; }
+  .starpick button { background: transparent; border: 3px dashed transparent; padding: 6px 2px; cursor: pointer; font-family: var(--head); font-size: .9rem; color: var(--blue); }
+  .starpick button.sel { border-color: var(--blue); background: rgba(255,232,0,.35); }
+  .starpick canvas { width: 100%; height: auto; display: block; }
+
+  .spacer { height: var(--skyh, 52vh); }
+  .gauge { height: 18px; border: 3px solid var(--blue); background: var(--paper); margin: 6px 0 2px; position: relative; overflow: hidden; }
+  .gauge > i { position: absolute; left: 0; top: 0; bottom: 0; background: repeating-linear-gradient(-45deg, var(--pink) 0 8px, var(--yellow) 8px 16px); }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+  .tabs button { font-family: var(--body); font-weight: 700; font-size: .85rem; color: var(--blue); background: var(--paper); border: 2px solid var(--blue); padding: 6px 9px; cursor: pointer; border-radius: 3px; }
+  .tabs button.sel { background: var(--blue); color: var(--paper); box-shadow: 3px 3px 0 var(--pink); }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+
+  /* play screen */
+  .ticket { background: var(--paper); border: 3px solid var(--blue); box-shadow: 5px 5px 0 var(--yellow); padding: 12px 14px; margin: 10px 0 12px; font-size: 1.15rem; line-height: 1.6; font-weight: 700; }
+  .ticket small { display: block; font-weight: 400; font-size: .8rem; opacity: .8; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tile { min-height: 70px; background: var(--paper); border: 3px solid var(--blue); color: var(--blue); font-family: var(--body); font-weight: 700; font-size: 1.15rem;
+    padding: 10px 8px; cursor: pointer; border-radius: 40% 46% 42% 48% / 46% 40% 48% 42%; box-shadow: 4px 4px 0 var(--pink); touch-action: manipulation; line-height: 1.35; }
+  .tile:nth-child(2) { transform: rotate(2deg); } .tile:nth-child(3) { transform: rotate(-2deg); } .tile:nth-child(4) { transform: rotate(1deg); }
+  .tile.right { background: var(--yellow); box-shadow: 0 0 0 6px var(--yellow), 4px 4px 0 6px var(--pink); }
+  .tile.wrong { background: repeating-linear-gradient(45deg, rgba(255,72,176,.35) 0 6px, transparent 6px 12px); text-decoration: line-through; }
+  .launchpad { height: 92px; display: flex; align-items: center; justify-content: center; position: relative; touch-action: none; }
+  .launchpad .hint { position: absolute; bottom: 0; font-size: .82rem; opacity: .85; }
+  .cometslot { width: 76px; height: 76px; }
+  .readout { font-family: var(--head); font-size: 2rem; min-height: 54px; text-align: center; color: var(--blue); border-bottom: 4px dotted var(--blue); margin: 4px 30px 10px; letter-spacing: 2px; }
+  .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .keypad button { font-family: var(--head); font-size: 1.6rem; height: 58px; background: var(--paper); color: var(--blue); border: 3px solid var(--blue); border-radius: 50% 50% 46% 54% / 54% 46% 54% 46%; cursor: pointer; box-shadow: 3px 3px 0 var(--yellow); touch-action: manipulation; }
+  .keypad button:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--yellow); }
+  .keypad button.go { grid-column: span 3; background: var(--pink); color: var(--paper); border-radius: 6px 16px 8px 14px; box-shadow: 4px 4px 0 var(--blue); font-size: 1.4rem; }
+  .why { border: 3px solid var(--blue); background: var(--paper); padding: 12px; margin: 12px 0; line-height: 1.55; position: relative; }
+  .why b.ok { color: var(--blue); background: var(--yellow); padding: 0 4px; } .why b.no { color: var(--paper); background: var(--pink); padding: 0 4px; }
+  .dots { display: flex; gap: 6px; justify-content: center; margin: 8px 0 0; }
+  .dots i { width: 14px; height: 14px; border: 2px solid var(--blue); border-radius: 50%; display: block; }
+  .dots i.r { background: var(--yellow); } .dots i.w { background: var(--pink); } .dots i.c { background: var(--blue); }
+  .combo { position: fixed; right: 12px; top: 10px; z-index: 25; font-family: var(--head); color: var(--pink); font-size: 1.4rem; transform: rotate(6deg); text-shadow: 2px 2px 0 var(--yellow); pointer-events: none; }
+  .tiny { font-size: .88rem; opacity: .9; }
+  .muted-btn { position: fixed; left: 10px; top: 10px; z-index: 26; background: var(--paper); border: 2px solid var(--blue); color: var(--blue); font-family: var(--head); font-size: .75rem; padding: 4px 6px; cursor: pointer; }
+
+  /* fractions with a bar (vinculum), powers */
+  .fr { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 3px; line-height: 1.1; font-size: .92em; }
+  .fr > span:first-child { border-bottom: 2.5px solid currentColor; padding: 0 3px; }
+  .fr > span:last-child { padding: 0 3px; }
+  sup { font-size: .68em; }
+  s { text-decoration-thickness: 3px; text-decoration-color: var(--pink); }
+  .fracbig { font-size: 1.1em; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th, td { padding: 5px 6px; border-bottom: 2px dotted var(--blue); text-align: left; }
+  .badges { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+  .badges canvas { width: 100%; height: auto; display: block; border: 3px solid var(--blue); }
+  .shake { animation: shake .35s; }
+  @keyframes shake { 20% { transform: translate(-7px, 3px); } 40% { transform: translate(6px, -4px); } 60% { transform: translate(-4px, 2px); } 80% { transform: translate(3px, -1px); } }
+  .modal { position: fixed; inset: 0; z-index: 50; background: rgba(0,120,191,.35); display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .modal > div { background: var(--paper); border: 3px solid var(--blue); box-shadow: 8px 8px 0 var(--pink); padding: 18px; max-width: 340px; width: 100%; transform: rotate(-1deg); }
+  .modal .row > button { margin: 6px 0 0; }
+  .offline { position: fixed; top: 0; left: 0; right: 0; z-index: 45; background: var(--yellow); color: var(--blue); font-weight: 700; text-align: center; padding: 6px; border-bottom: 3px solid var(--blue); font-size: .9rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+  .chips span { border: 2px solid var(--blue); padding: 3px 7px; font-size: .85rem; font-weight: 700; background: var(--paper); }
+  .chips span.weak { background: var(--pink); color: var(--paper); }
+  .chips span.good { background: var(--yellow); }
+  .chips span.none { border-style: dashed; opacity: .75; }
+  .again-tag { display: inline-block; background: var(--pink); color: var(--paper); padding: 1px 6px; margin-left: 6px; font-weight: 700; }
+  .names { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; max-height: 270px; overflow: auto; padding: 2px; }
+  .names button { font-family: var(--body); font-weight: 700; font-size: .95rem; color: var(--blue); background: var(--paper); border: 2px solid var(--blue); padding: 7px 10px; cursor: pointer; border-radius: 3px; }
+  .names button.sel { background: var(--blue); color: var(--paper); box-shadow: 3px 3px 0 var(--pink); }
+  .names button.taken { border-style: dashed; opacity: .7; }
+  .mission { border: 3px solid var(--pink); background: rgba(255,232,0,.25); }
+  .tutcap { min-height: 3.4em; margin: 8px 0 4px; text-align: center; font-family: var(--head); text-transform: uppercase; font-size: 1.05rem; line-height: 1.15; color: var(--blue); text-shadow: 2px 2px 0 rgba(255,72,176,.7); }
+  .tutcap.on { background: var(--paper); border: 2px dashed var(--blue); padding: 6px 8px; transform: rotate(-.6deg); }
+  .tutcap small { display: block; font-family: var(--body); font-weight: 700; font-size: .72rem; text-shadow: none; margin-top: 3px; opacity: .8; }
+  .tutcap.home { min-height: 0; }
+  .clockwarn { position: fixed; top: 0; left: 0; right: 0; z-index: 46; background: var(--pink); color: var(--paper); font-weight: 700; padding: 10px 40px 10px 12px; border-bottom: 3px solid var(--blue); font-size: .92rem; line-height: 1.35; }
+  .clockwarn button { position: absolute; right: 6px; top: 6px; background: var(--paper); color: var(--blue); border: 2px solid var(--blue); font-weight: 700; width: 28px; height: 28px; cursor: pointer; }
+  .fab { position: fixed; right: 12px; bottom: 14px; z-index: 35; background: var(--pink); color: var(--paper); border: 3px solid var(--blue); box-shadow: 3px 3px 0 var(--yellow); padding: 10px 14px; font-family: var(--body); font-weight: 700; font-size: 1rem; cursor: pointer; touch-action: manipulation; transform: rotate(-2deg); }
+  .toast { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%) rotate(-1deg); background: var(--pink); color: var(--paper); padding: 10px 14px; font-weight: 700; z-index: 40; border: 3px solid var(--blue); }
+
+  /* LIVE box: the race right now, a talking ticker and the latest finished rounds */
+  .live { border: 3px solid var(--blue); background: var(--paper); box-shadow: 5px 5px 0 var(--pink); padding: 10px 12px 12px; margin: 14px 0; transform: rotate(.3deg); }
+  .livehead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .pulse { display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: var(--pink); margin-right: 7px; vertical-align: middle; animation: pulse 1.4s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,72,176,.8); } 100% { box-shadow: 0 0 0 13px rgba(255,72,176,0); } }
+  .lrow { margin: 9px 0; }
+  .lrow .lname { padding: 0 4px; font-family: var(--head); text-transform: uppercase; font-size: .95rem; }
+  .lrow.mine .lname { background: var(--yellow); }
+  .lbar { height: 16px; border: 2px solid var(--blue); background: var(--paper); position: relative; overflow: hidden; margin: 3px 0 2px; }
+  .lbar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--c, var(--pink)); transition: width 1s ease; }
+  .ticker { min-height: 3.6em; font-weight: 700; font-size: .98rem; line-height: 1.4; border-top: 2px dashed var(--blue); margin: 8px 0 0; padding-top: 8px; transition: opacity .3s; cursor: pointer; }
+  .ticker.fade { opacity: 0; }
+  .feed { list-style: none; margin: 6px 0 0; padding: 0; font-size: .88rem; }
+  .feed li { padding: 4px 2px; border-bottom: 1px dotted var(--blue); line-height: 1.35; }
+  .feed li.new { animation: flash 2s; }
+  @keyframes flash { 0% { background: var(--yellow); } 100% { background: transparent; } }
+  .ver { font-size: .72rem; opacity: .45; text-align: center; margin: 14px 0 0; }
+
+  /* projector board: the race and the feed sit under the sky */
+  .bgrid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 28px; max-width: 1180px; margin: 10px auto 0; }
+  .blrow { font-size: clamp(13px, 1.3vw, 22px); margin: 5px 0; line-height: 1.3; }
+  .bstory { font-size: clamp(13px, 1.3vw, 22px); font-weight: 700; margin: 8px 0 0; }
+  body.wide .feed { font-size: clamp(12px, 1.2vw, 20px); }
+  body.wide .feed li { padding: 2px 2px; }
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<canvas id="fx"></canvas>
+<div id="app"><p class="h m" style="padding-top:40vh;text-align:center">Printing the sky…</p></div>
+
+<!-- ======================================================================
+     QUESTION GENERATORS — same maths as the Term 1 exam. Questions are made fresh
+     every time. Questions with a whole-number answer are typed on the keypad;
+     the rest (algebra, fractions, powers) are answered with tiles.
+     ====================================================================== -->
+<script id="generators">
+
+const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const gcd = (a, b) => b ? gcd(b, a % b) : a;
+const lcm = (a, b) => a / gcd(a, b) * b;
+const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const frac = (n, d) => `<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const mixed = (w, n, d) => `${w}${frac(n, d)}`;
+const pw = (b, e) => `${b}<sup>${e}</sup>`;
+const v = (x) => `<i>${x}</i>`;
+const NAMES = ['Adon', 'Kalifa', 'Maia', 'Keeland', 'Sarai', 'Jasper', 'Joy', 'Jazz-marie', 'Eli-jah', 'Roland', 'Aidan', 'Shania'];
+const LETTERS = ['a', 'b', 'c', 'd', 'k', 'm', 'n', 'p', 't', 'x', 'y'];
+const term = (c, x) => (c === 1 ? '' : c) + v(x);
+
+// Build a multiple-choice question. Options are HTML strings; duplicates are removed.
+function mc(topic, q, correct, wrong, why) {
+  const seen = new Set([correct]); const w = [];
+  for (const o of wrong) { if (!seen.has(o) && w.length < 3) { seen.add(o); w.push(o); } }
+  const opts = shuffle([correct, ...w]);
+  return { topic, q, opts, ans: opts.indexOf(correct), why };
+}
+function mcNum(topic, q, ans, cands, why) {
+  const w = cands.filter(n => Number.isInteger(n) && n > 0 && n !== ans);
+  let k = 1; while (new Set(w).size < 3) { const c = ans + k * (k % 2 ? 1 : -1) * 10 + k; w.push(c > 0 && c !== ans ? c : ans + 10 * k + k); k++; }
+  const m = mc(topic, q, fmt(ans), w.map(fmt), why); m.num = ans; return m;
+}
+
+/* ---------- 1. FOUR OPERATIONS ---------- */
+function noCarryAdd(a, b) { const s = String(a).padStart(5, '0'), t = String(b).padStart(5, '0'); let o = ''; for (let i = 0; i < 5; i++) o += (+s[i] + +t[i]) % 10; return +o; }
+function columnFlipSub(a, b) { const s = String(a).padStart(5, '0'), t = String(b).padStart(5, '0'); let o = ''; for (let i = 0; i < 5; i++) o += Math.abs(+s[i] - +t[i]); return +o; }
+const OPS = [
+  () => { const a = R(1200, 8999), b = R(1100, 8999), s = a + b;
+    return mcNum('ops', `Work out ${fmt(a)} + ${fmt(b)}.`, s, [noCarryAdd(a, b), s + 10, s - 100, s + 1000],
+      `Line up ones under ones, tens under tens. When a column adds up to 10 or more, carry 1 to the next column. ${fmt(a)} + ${fmt(b)} = ${fmt(s)}.`); },
+  () => { const a = R(3, 9) * 1000 + pick([0, 4, 20, 7, 300]), b = R(1100, a - 600), d = a - b;
+    return mcNum('ops', `Work out ${fmt(a)} − ${fmt(b)}.`, d, [columnFlipSub(a, b), d + 10, d - 100, d + 1000],
+      `You cannot take a bigger digit from a smaller one, so you borrow from the next column. You cannot just take the smaller digit from the bigger one. ${fmt(a)} − ${fmt(b)} = ${fmt(d)}.`); },
+  () => { const a = R(112, 489), b = R(12, 19), p = a * b, t = Math.floor(b / 10), o = b % 10;
+    return mcNum('ops', `Work out ${a} × ${b}.`, p, [a * o + a * t, p + 10, p - a, a * o],
+      `Split ${b} into ${t}0 and ${o}. ${a} × ${t}0 = ${fmt(a * t * 10)} and ${a} × ${o} = ${fmt(a * o)}. Add them: ${fmt(p)}. Forgetting the 0 in ${t}0 is the most common slip.`); },
+  // ORDER OF OPERATIONS (BODMAS): Brackets, then × and ÷ (left to right), then + and − (left to right)
+  () => { const a = R(2, 9), b = R(2, 9), c = R(2, 9), v = a + b * c;
+    return mcNum('ops', `Work out ${a} + ${b} × ${c}.`, v, [(a + b) * c, a * b + c, a + b + c],
+      `Multiply before you add. First ${b} × ${c} = ${b * c}. Then ${a} + ${b * c} = ${v}. If you add first, you get ${(a + b) * c}, which is wrong.`); },
+  () => { const a = R(2, 9), b = R(2, 9), c = R(2, 6), v = (a + b) * c;
+    return mcNum('ops', `Work out (${a} + ${b}) × ${c}.`, v, [a + b * c, a * c + b, a + b + c],
+      `Brackets come first. ${a} + ${b} = ${a + b}. Then ${a + b} × ${c} = ${v}.`); },
+  () => { const d = R(2, 6), k = R(2, 8), c = d * k, a = R(3, 9), b = R(3, 9), v = a * b - k;
+    return mcNum('ops', `Work out ${a} × ${b} − ${c} ÷ ${d}.`, v, [(a * b - c) / d, a * b - c, a * (b - k), v + d],
+      `Do the × and the ÷ before the −. ${a} × ${b} = ${a * b} and ${c} ÷ ${d} = ${k}. Then ${a * b} − ${k} = ${v}.`); },
+  () => { const a = R(20, 40), b = R(5, 12), c = R(3, 9), v = a - b + c;
+    return mcNum('ops', `Work out ${a} − ${b} + ${c}.`, v, [a - (b + c), a - b - c, a + b + c],
+      `When there is only + and −, work from left to right. ${a} − ${b} = ${a - b}, then ${a - b} + ${c} = ${v}. You cannot add ${b} + ${c} first.`); },
+  () => { const b = R(2, 4), c = b === 2 ? 3 : 2, m = R(2, 6), a = b * c * m, v = (a / b) * c;
+    return mcNum('ops', `Work out ${a} ÷ ${b} × ${c}.`, v, [m, a * c, v + b],
+      `× and ÷ are equal partners, so work from left to right. ${a} ÷ ${b} = ${a / b}, then ${a / b} × ${c} = ${v}. You cannot do ${b} × ${c} first.`); },
+  () => { const N = pick(NAMES), a = R(2, 9), b = R(2, 9), c = R(2, 9);
+    return mc('ops', `${N} worked out ${a} + ${b} × ${c} and got ${(a + b) * c}. What went wrong?`, 'Added before multiplying',
+      ['Multiplied before adding', 'Forgot to carry', 'Nothing, it is correct'],
+      `Multiplication comes before addition. ${b} × ${c} = ${b * c} first, then ${a} + ${b * c} = ${a + b * c}. ${N} added ${a} + ${b} first.`); },
+  () => { const d = R(3, 9), q = R(112, 389), n = d * q;
+    return mcNum('ops', `Work out ${fmt(n)} ÷ ${d}.`, q, [q + 1, q - 10, q + 10, q * 10],
+      `Check by multiplying back: ${q} × ${d} = ${fmt(n)}. So ${fmt(n)} ÷ ${d} = ${q}.`); },
+];
+
+/* ---------- 2. NUMBER SENSE ---------- */
+const PRIMES = [23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97];
+const ODD_COMPOSITES = [21, 27, 33, 39, 49, 51, 57, 63, 69, 77, 81, 87, 91, 93];
+function smallFactor(n) { for (let f = 2; f < n; f++) if (n % f === 0) return f; return n; }
+const HL_PAIRS = [[12, 18], [16, 24], [18, 27], [20, 30], [24, 36], [36, 54], [28, 42], [30, 45], [32, 48], [15, 25], [14, 21], [40, 60], [8, 12], [6, 10], [9, 12], [10, 15]];
+const NUMBER = [
+  () => { const p = pick(PRIMES), c = shuffle(ODD_COMPOSITES).slice(0, 3), f = smallFactor(c[0]);
+    return mc('number', 'Which of these is a prime number?', String(p), c.map(String),
+      `A prime number has exactly two factors: 1 and itself. ${p} is prime. The others are not: for example, ${c[0]} = ${f} × ${c[0] / f}.`); },
+  () => { const n = pick([36, 48, 54, 60, 72, 84, 90, 96]); const fs = []; for (let f = 6; f <= n / 2; f++) if (n % f === 0) fs.push(f);
+    const f = pick(fs); const non = shuffle([7, 9, 10, 11, 13, 14, 15, 16, 17, 19, 20, 22, 25, 26, 32, 35].filter(x => n % x && x < n)).slice(0, 3);
+    return mc('number', `Which of these is a factor of ${n}?`, String(f), non.map(String),
+      `A factor of ${n} divides into ${n} exactly, with nothing left over. ${n} ÷ ${f} = ${n / f}, so ${f} is a factor.`); },
+  () => { const k = pick([6, 7, 8, 9, 12]), m = k * R(4, 12); const non = shuffle([m + 1, m - 1, m + 2, m + k + 1, m - 2]).slice(0, 3);
+    return mc('number', `Which of these is a multiple of ${k}?`, String(m), non.map(String),
+      `Multiples of ${k} are in the ${k} times table. ${k} × ${m / k} = ${m}.`); },
+  () => { const [a, b] = pick(HL_PAIRS), h = gcd(a, b), l = lcm(a, b);
+    let small = 1; for (let f = 2; f < h; f++) if (a % f === 0 && b % f === 0) small = f;
+    return pick([
+      mcNum('number', `What is the HCF (Highest Common Factor) of ${a} and ${b}?`, h, [l, small, a * b, b - a],
+        `List the factors of each number and circle the ones they share. The highest one they share is ${h}. (The LCM, ${l}, is a multiple — that is a different thing.)`),
+      mcNum('number', `What is the LCM (Lowest Common Multiple) of ${a} and ${b}?`, l, [h, a * b, l * 2, a + b],
+        `List the multiples of each number: ${a}, ${2 * a}, ${3 * a}… and ${b}, ${2 * b}, ${3 * b}… The first one in both lists is ${l}. ${a} × ${b} = ${a * b} is a common multiple, but not the lowest.`),
+    ]); },
+  () => { const [a, b] = pick(HL_PAIRS), h = gcd(a, b), l = lcm(a, b), N = pick(NAMES);
+    return pick([
+      mcNum('number', `${N} has ${a} mangoes and ${b} portugals. ${N} packs them into identical bags, using all the fruit with nothing left over. What is the greatest number of bags?`, h, [l, a * b, h / 2, a + b],
+        `“Greatest number of identical bags using all of both” means you need the Highest Common Factor. HCF of ${a} and ${b} = ${h}.`),
+      mcNum('number', `One light flashes every ${a} seconds and another every ${b} seconds. They just flashed together. After how many seconds will they next flash together?`, l, [h, a * b, a + b, l + a],
+        `“When will they happen together again?” means you need the Lowest Common Multiple. Multiples of ${a} and ${b} first meet at ${l}.`),
+    ]); },
+  () => { const n = R(11, 15), sq = n * n;
+    return pick([
+      mcNum('number', `What is the square of ${n}?`, sq, [n * 2, sq + n, sq - 10, n * 10],
+        `The square of ${n} means ${n} × ${n} = ${sq}. It is not ${n} × 2.`),
+      mcNum('number', `What is the square root of ${(n - 3) ** 2}?`, n - 3, [((n - 3) ** 2) / 2, n - 2, n - 4, (n - 3) * 2],
+        `The square root asks: which number multiplied by itself gives ${(n - 3) ** 2}? ${n - 3} × ${n - 3} = ${(n - 3) ** 2}.`),
+    ]); },
+  () => { const t1 = R(3, 9), t2 = R(2, 8), a = t1 * 10 + pick([-1, 1, -2, 2]), b = t2 * 10 + pick([-1, 1]), e = t1 * t2 * 100;
+    return mcNum('number', `Round each number to the nearest ten, then estimate ${a} × ${b}.`, e, [e / 10, e * 10, (t1 + t2) * 10, e + 1000],
+      `Round each number to the nearest ten: ${a} ≈ ${t1 * 10} and ${b} ≈ ${t2 * 10}. ${t1 * 10} × ${t2 * 10} = ${fmt(e)}.`); },
+];
+
+/* ---------- 3. ALGEBRA ---------- */
+function letters2() { const s = shuffle(LETTERS); return [s[0], s[1]]; }
+const ALGEBRA = [
+  () => { const [m, n] = letters2(), a = R(2, 9), c = R(2, 9);
+    return mc('algebra', `What is the coefficient of ${v(n)} in &nbsp;${a}${v(m)} + ${v(n)} + ${c}?`, '1', ['0', String(a), String(c)],
+      `${v(n)} means 1${v(n)}. The 1 is not written, but it is there. So the coefficient of ${v(n)} is 1.`); },
+  () => { const [m, n] = letters2(), a = R(2, 9), b = R(2, 9), c = R(2, 9);
+    const k = pick([2, 3, 4]); const parts = [`${a}${v(m)}`, `${b}${v(n)}`, String(c), `${R(2, 9)}${v(m)}${v(n)}`].slice(0, k);
+    return mc('algebra', `How many terms are in &nbsp;${parts.join(' + ')}?`, String(k), ['1', String(k + 1), String(k * 2), String(k - 1)],
+      `Terms are separated by + and − signs. Count the pieces: ${parts.join(' &nbsp;|&nbsp; ')}. That is ${k} terms.`); },
+  () => { const x = pick(LETTERS), a = R(2, 9), b = R(2, 9), s = a + b;
+    return mc('algebra', `Simplify &nbsp;${a}${v(x)} + ${b}${v(x)}`, `${s}${v(x)}`, [`${s}${v(x)}${'<sup>2</sup>'}`, String(s), `${a * b}${v(x)}`],
+      `${a}${v(x)} and ${b}${v(x)} are like terms (same letter, same power). ${a} of them plus ${b} of them is ${s} of them: ${s}${v(x)}. The power does not change.`); },
+  () => { const p = pick(LETTERS), a = R(2, 9), b = R(2, 9), c = R(2, 9), d = R(2, 9);
+    return mc('algebra', `Simplify &nbsp;${a}${v(p)} + ${c} + ${b}${v(p)} + ${d}`, `${a + b}${v(p)} + ${c + d}`, [`${a + b + c + d}${v(p)}`, String(a + b + c + d), `${a + c}${v(p)} + ${b + d}`],
+      `Put the ${v(p)} terms together and the plain numbers together. ${a}${v(p)} + ${b}${v(p)} = ${a + b}${v(p)} and ${c} + ${d} = ${c + d}. You cannot join ${a + b}${v(p)} and ${c + d}, because one has ${v(p)} and the other does not.`); },
+  () => { const [x, y] = letters2(), a = R(2, 9), b = R(2, 9);
+    return mc('algebra', `Simplify &nbsp;${a}${v(x)} + ${b}${v(y)}`, 'It cannot be simplified', [`${a + b}${v(x)}${v(y)}`, `${a + b}${v(x)}`, String(a + b)],
+      `${v(x)} and ${v(y)} are different letters, so ${a}${v(x)} and ${b}${v(y)} are unlike terms. You cannot add them together.`); },
+  () => { const x = pick(LETTERS), a = R(2, 9), b = R(2, 9);
+    return mc('algebra', `Expand &nbsp;${a}(${v(x)} + ${b})`, `${a}${v(x)} + ${a * b}`, [`${a}${v(x)} + ${b}`, `${v(x)} + ${a * b}`, `${a}${v(x)} + ${a + b}`],
+      `${a}(${v(x)} + ${b}) means ${a} lots of (${v(x)} + ${b}). That gives ${a} lots of ${v(x)} AND ${a} lots of ${b}: ${a}${v(x)} + ${a * b}.`); },
+  () => { const x = pick(LETTERS), a = R(2, 6), c = R(2, 5), b = R(2, 9);
+    return mc('algebra', `Expand &nbsp;${a}(${c}${v(x)} + ${b})`, `${a * c}${v(x)} + ${a * b}`, [`${a * c}${v(x)} + ${b}`, `${a + c}${v(x)} + ${a * b}`, `${c}${v(x)} + ${a * b}`],
+      `Multiply BOTH terms inside the bracket by ${a}: ${a} × ${c}${v(x)} = ${a * c}${v(x)} and ${a} × ${b} = ${a * b}.`); },
+  () => { const x = pick(LETTERS), a = R(2, 5), b = R(2, 9), c = R(2, 5), d = R(2, 9);
+    return mc('algebra', `Expand and simplify &nbsp;${a}(${v(x)} + ${b}) + ${c}(${v(x)} + ${d})`, `${a + c}${v(x)} + ${a * b + c * d}`,
+      [`${a + c}${v(x)} + ${b + d}`, `${a * c}${v(x)} + ${a * b + c * d}`, `${a + c}${v(x)} + ${a * b + d}`],
+      `First expand each bracket: ${a}${v(x)} + ${a * b} and ${c}${v(x)} + ${c * d}. Then collect like terms: ${a + c}${v(x)} + ${a * b + c * d}.`); },
+  () => pick([
+    mc('algebra', `${v('x')} + 5 has one operation, addition. In &nbsp;3(${v('x')} + 5), which operation is hiding between the 3 and the bracket?`, 'Multiplication', ['Addition', 'Subtraction', 'Division'],
+      `A number written right next to a bracket means multiply. 3(${v('x')} + 5) means 3 × (${v('x')} + 5).`),
+    mc('algebra', `In &nbsp;7${v('y')}, which operation joins the 7 and the ${v('y')}?`, 'Multiplication', ['Addition', 'Nothing joins them', 'Division'],
+      `7${v('y')} means 7 × ${v('y')}. The × sign is not written, but it is there.`),
+  ]),
+  () => { const N = pick(NAMES), x = pick(LETTERS), a = R(3, 8), b = R(2, 9);
+    return mc('algebra', `${N} expanded ${a}(${v(x)} + ${b}) and wrote &nbsp;${a}${v(x)} + ${b}. What went wrong?`, `The ${b} was not multiplied by ${a}`,
+      [`The ${v(x)} should not be multiplied by ${a}`, `${a} and ${b} should be added`, 'Nothing, it is correct'],
+      `There are ${a} copies of (${v(x)} + ${b}), so there are ${a} lots of ${b} too. Correct answer: ${a}${v(x)} + ${a * b}.`); },
+  () => { const [p, q] = letters2(), P = R(3, 9); let Q = R(2, 9); if (Q === P) Q = P === 9 ? 2 : P + 1; const a = R(2, 6), b = R(2, 5);
+    return pick([
+      mcNum('algebra', `When ${v(p)} = ${P} and ${v(q)} = ${Q}, find the value of &nbsp;${a}${v(p)} + ${v(q)}.`, a * P + Q, [a * 10 + P + Q, a + P + Q, a * (P + Q), a * P * Q],
+        `Replace ${v(p)} with ${P}: ${a}${v(p)} means ${a} × ${P} = ${a * P}. Then add ${v(q)}: ${a * P} + ${Q} = ${a * P + Q}. (${a}${v(p)} is not “${a}${P}”.)`),
+      mcNum('algebra', `When ${v(p)} = ${P} and ${v(q)} = ${Q}, find the value of &nbsp;${v(p)}(${v(q)} + ${b}).`, P * (Q + b), [P * Q + b, P + Q + b, P * Q * b, P * b + Q],
+        `Work out the bracket first: ${Q} + ${b} = ${Q + b}. Then multiply: ${P} × ${Q + b} = ${P * (Q + b)}.`),
+    ]); },
+];
+
+/* ---------- 4. POWERS ---------- */
+const PW_PAIRS = [[2, 3], [2, 4], [2, 5], [2, 6], [3, 2], [3, 3], [3, 4], [4, 2], [4, 3], [5, 2], [5, 3], [10, 2], [10, 3], [6, 2], [7, 2]];
+const POWERS = [
+  () => { const b = R(2, 9); let e = R(2, 6); if (e === b) e = b === 6 ? 2 : b + 1; const askBase = Math.random() < .5;
+    return mc('powers', `In &nbsp;${pw(b, e)}, which number is the ${askBase ? 'base' : 'index (power)'}?`, String(askBase ? b : e), [String(askBase ? e : b), String(b * e), String(b + e)],
+      `In ${pw(b, e)}, the big number ${b} is the base: it is the number being multiplied. The small raised number ${e} is the index: it tells you how many ${b}s to multiply.`); },
+  () => { const [b, e] = pick(PW_PAIRS), val = b ** e;
+    return mcNum('powers', `Work out &nbsp;${pw(b, e)}.`, val, [b * e, e ** b, b + e, b ** (e - 1)],
+      `${pw(b, e)} means ${Array(e).fill(b).join(' × ')} = ${fmt(val)}. It is not ${b} × ${e}.`); },
+  () => { const b = R(2, 9), e = R(3, 6), s = Array(e).fill(b).join(' × ');
+    return mc('powers', `Write &nbsp;${s} &nbsp;in index form.`, pw(b, e), [pw(e, b), String(b * e), `${b} × ${e}`],
+      `There are ${e} ${b}s multiplied together, so the base is ${b} and the index is ${e}: ${pw(b, e)}.`); },
+  () => { const [a, b] = shuffle([2, 3, 5, 7]).slice(0, 2), m = R(2, 3), n = 5 - m;
+    const items = shuffle([...Array(m).fill(a), ...Array(n).fill(b)]);
+    return mc('powers', `Write &nbsp;${items.join(' × ')} &nbsp;in index form.`, `${pw(a, m)} × ${pw(b, n)}`, [`${pw(a, n)} × ${pw(b, m)}`, pw(a * b, 5), `${pw(a, m)} + ${pw(b, n)}`],
+      `Count each base: there are ${m} ${a}s and ${n} ${b}s. So it is ${pw(a, m)} × ${pw(b, n)}.`); },
+  () => { const [a, b] = pick([[2, 5], [2, 3], [3, 4], [2, 6], [2, 4], [3, 5]]), A = a ** b, B = b ** a;
+    const correct = A === B ? 'They are equal' : (A > B ? pw(a, b) : pw(b, a));
+    return mc('powers', `${pick(NAMES)} says ${pw(a, b)} and ${pw(b, a)} must be equal because they use the same numbers. Which is larger?`, correct,
+      [pw(a, b), pw(b, a), 'They are equal', 'You cannot tell'].filter(x => x !== correct),
+      `Work out both: ${pw(a, b)} = ${A} and ${pw(b, a)} = ${B}. ${A === B ? 'This time they really are equal — but that is rare!' : 'Swapping the base and the index changes the answer.'}`); },
+  () => { const b = pick([2, 3, 5]), m = R(4, 6), n = R(2, 3), top = Array(m).fill(b), bot = Array(n).fill(b);
+    const topH = top.map((x, i) => i < n ? `<s>${x}</s>` : x).join(' × '), botH = bot.map(x => `<s>${x}</s>`).join(' × ');
+    return mc('powers', `${pick(NAMES)} worked out ${pw(b, m)} ÷ ${pw(b, n)} like this, crossing out pairs: <div class="fracbig" style="margin-top:8px">${frac(topH, botH)}</div>What is left, as a power of ${b}?`,
+      pw(b, m - n), [pw(b, m + n), pw(b, m * n), '1'],
+      `Each ${b} on top divided by a ${b} on the bottom makes 1, so those pairs cancel. ${m - n} ${b}s are left: ${pw(b, m - n)}.`); },
+];
+
+/* ---------- 5. FRACTIONS FROM PRIMARY SCHOOL ---------- */
+const FR_SET = [[1, 2], [2, 3], [3, 4], [3, 5], [2, 5], [4, 5], [5, 6], [3, 8], [5, 8], [7, 10], [1, 3], [1, 4], [5, 12], [7, 12]];
+const FRACTIONS = [
+  () => { let s; do { s = shuffle(FR_SET).slice(0, 3); } while (new Set(s.map(([n, d]) => n / d)).size < 3);
+    const big = Math.random() < .5, sorted = s.slice().sort((x, y) => x[0] / x[1] - y[0] / y[1]), ans = big ? sorted[2] : sorted[0];
+    const L = s.reduce((acc, [, d]) => lcm(acc, d), 1);
+    return mc('fractions', `Which fraction is the ${big ? 'largest' : 'smallest'}? &nbsp;${s.map(([n, d]) => frac(n, d)).join(' &nbsp; ')}`, frac(...ans),
+      [...s.filter(x => x !== ans).map(x => frac(...x)), 'They are all equal'],
+      `Change them all to ${L}ths: ${s.map(([n, d]) => `${frac(n, d)} = ${frac(n * L / d, L)}`).join(', ')}. Now compare the top numbers.`); },
+  () => { const [a, b] = shuffle([2, 3, 4, 5, 6, 8, 10, 12]).slice(0, 2), sm = Math.min(a, b), lg = Math.max(a, b);
+    return mc('fractions', `Which is bigger: &nbsp;${frac(1, a)} &nbsp;or&nbsp; ${frac(1, b)} of the same pizza?`, frac(1, sm), [frac(1, lg), 'They are the same size'],
+      `The bottom number tells you how many pieces the pizza is cut into. More pieces means SMALLER pieces. So ${frac(1, sm)} is bigger than ${frac(1, lg)}.`); },
+  () => { const d = pick([3, 4, 5, 6, 8]), w = R(2, 5); let r; do { r = R(1, d - 1); } while (gcd(r, d) !== 1); const n = w * d + r;
+    return mc('fractions', `Change &nbsp;${frac(n, d)} &nbsp;to a mixed number.`, mixed(w, r, d), [mixed(w + 1, r, d), mixed(w, d, r), mixed(r, w, d)],
+      `${n} ÷ ${d} = ${w} remainder ${r}. So that is ${w} whole ones and ${frac(r, d)} left over: ${mixed(w, r, d)}.`); },
+  () => { const d = pick([3, 4, 5, 6, 8]), w = R(2, 5); let r; do { r = R(1, d - 1); } while (gcd(r, d) !== 1); const n = w * d + r;
+    return mc('fractions', `Change &nbsp;${mixed(w, r, d)} &nbsp;to an improper fraction.`, frac(n, d), [frac(w + r, d), frac(w * r + d, d), frac(n, w * d)],
+      `${w} wholes = ${w} × ${d} = ${w * d} ${d}ths. Add the ${r} extra: ${w * d} + ${r} = ${n}. So ${frac(n, d)}.`); },
+  () => { const [a, b] = pick([[2, 3], [3, 4], [3, 5], [2, 5], [4, 5], [5, 6], [3, 8], [5, 7]]), k = pick([4, 6, 8]);
+    return mc('fractions', `Write &nbsp;${frac(a * k, b * k)} &nbsp;in its simplest form.`, frac(a, b), [frac(a * k / 2, b * k / 2), frac(a + 1, b + 1), frac(b, a)],
+      `Divide the top and the bottom by the same number until you cannot divide any more. ${a * k} ÷ ${k} = ${a} and ${b * k} ÷ ${k} = ${b}. So ${frac(a, b)}.`); },
+  () => { const s = pick([6, 8]), L = s * R(1, 3) + R(1, s - 1), full = Math.floor(L / s), N = pick(NAMES);
+    return mcNum('fractions', `${N}'s pizza shop cuts every pizza into ${s} slices. There are ${L} slices left. One box holds the slices from one whole pizza. How many boxes are needed for ALL the slices?`, full + 1, [full, full + 2, L, s],
+      `${L} ÷ ${s} = ${full} remainder ${L - full * s}. ${full} boxes are full, but the ${L - full * s} extra slices still need a box. So ${full + 1} boxes.`); },
+];
+
+const TOPICS = {
+  mixed: { label: 'Mixed (best for the exam)' },
+  ops: { label: 'Operations and BODMAS', gens: OPS, weight: 1.5 },
+  number: { label: 'Number sense', gens: NUMBER, weight: 2 },
+  algebra: { label: 'Algebra', gens: ALGEBRA, weight: 4 },
+  powers: { label: 'Powers', gens: POWERS, weight: 2 },
+  fractions: { label: 'Fractions', gens: FRACTIONS, weight: 1.5 },
+};
+function makeQuestion(topic) {
+  let t = topic;
+  if (topic === 'mixed') { const ks = Object.keys(TOPICS).filter(k => TOPICS[k].gens), tot = ks.reduce((s, k) => s + TOPICS[k].weight, 0); let r = Math.random() * tot; for (const k of ks) { r -= TOPICS[k].weight; if (r <= 0) { t = k; break; } } if (t === 'mixed') t = 'algebra'; }
+  const gen = pick(TOPICS[t].gens), q = gen(); q.gen = gen; return q;
+}
+if (typeof module !== 'undefined') module.exports = { TOPICS, makeQuestion };
+
+</script>
+
+<script type="module">
+/* ===================== SETTINGS (Mr. Legall edits here) ===================== */
+// 1. Paste your Firebase config here (Firebase console → Project settings → Your apps → Config).
+//    While apiKey still says PASTE, the game runs in DEMO mode with pretend players.
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCEV1Lw_xDg6NuG2jXv122jgrFWaAklzBk",
+  authDomain: "star-forge-back-end.firebaseapp.com",
+  projectId: "star-forge-back-end",
+  storageBucket: "star-forge-back-end.firebasestorage.app",
+  messagingSenderId: "612683145843",
+  appId: "1:612683145843:web:dc1cd142b40c91bebe4006",
+};
+// 2. The tournament. (The dates must match firestore.rules.)
+const T = {
+  title: 'Star Forge',
+  classes: [
+    { id: 'ARC', name: '1 Arcturus', size: 42 },   // size = number of students on the class roll (ARC = form 1A, BET = 1B, CAP = 1C)
+    { id: 'BET', name: '1 Betelgeuse', size: 40 },
+    { id: 'CAP', name: '1 Capella', size: 39 },
+  ],
+  start: '2026-11-26T07:00:00-04:00',   // points start counting
+  doubleDay: '2026-12-01',              // every correct answer worth 2 points on this day
+  close: '2026-12-01T20:00:00-04:00',   // the sky freezes; supernova for the winners
+  examDay: 'Wednesday 2 December',
+  dailyCap: 40,                         // correct answers that earn points each day
+  roundLength: 10,
+  dailyBonus: 5,                        // for the first round played each day
+  teacherHash: '0a6498e16fd1939081f455e1fe0d0e2a757c27f3d69c07d0e4967c6d1a9c9973',   // fingerprint of the teacher code (the code itself is not in this file). See the README.
+  missionBonus: 1,                      // extra points per hit in a class bonus round
+};
+// 3. CLASS LISTS are NOT kept in this file (it is public). They live in the Firebase rules,
+//    which students cannot see. See "Class lists" in the README.
+const ROSTER = { ARC: [], BET: [], CAP: [] };   // leave empty
+const VERSION = '1.10';
+/* ============================================================================ */
+
+const $ = (s) => document.querySelector(s);
+const app = $('#app');
+const params = new URLSearchParams(location.search);
+// The teacher code is checked by its fingerprint (SHA-256), so reading this page's code does not reveal it.
+const sha256 = async (t) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(b => b.toString(16).padStart(2, '0')).join('');
+let teacherOk = false; try { teacherOk = params.has('teacher') && !!(window.crypto && crypto.subtle) && (await sha256('starforge:' + params.get('teacher'))) === T.teacherHash; } catch (e) { }
+const view = params.has('board') ? 'board' : teacherOk ? 'teacher' : 'player';
+const DEMO = FIREBASE_CONFIG.apiKey.startsWith('PASTE') || params.has('demo');
+const DAY = 86400000, OFFSET = 4 * 3600000;
+const dayIdx = (ms = Date.now()) => Math.floor((ms - OFFSET) / DAY);
+const START = Date.parse(T.start), CLOSE = Date.parse(T.close);
+const DOUBLE_IDX = dayIdx(Date.parse(T.doubleDay + 'T00:00:00-04:00'));
+const CLS = Object.fromEntries(T.classes.map(c => [c.id, c]));
+const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const one = (x) => (Math.round(x * 10) / 10).toFixed(1);
+const place = (i) => ['1st', '2nd', '3rd'][i] || (i + 1) + 'th';                       // class places (0 = 1st)
+const ordinal = (n) => { const m = n % 100, d = n % 10; return n + (m >= 11 && m <= 13 ? 'th' : d === 1 ? 'st' : d === 2 ? 'nd' : d === 3 ? 'rd' : 'th'); };   // player places (1 = 1st)
+const whenStr = (ms) => new Date(ms).toLocaleString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Port_of_Spain' });
+function ago(ms) { const s = Math.max(0, Math.round((Date.now() - ms) / 1000)); if (s < 45) return 'just now'; const m = Math.round(s / 60); if (m < 60) return m + ' min ago'; const h = Math.round(m / 60); if (h < 24) return h + ' h ago'; return Math.round(h / 24) + ' d ago'; }
+function phase(now = Date.now()) {
+  const p = params.get('preview'); if (p === 'final') return 'final'; if (p === 'live' || p === 'double') return 'live';
+  if (now < START) return 'before'; if (now >= CLOSE) return 'final'; return 'live';
+}
+const isDouble = () => dayIdx() === DOUBLE_IDX || params.get('preview') === 'double';
+const ppc = () => (isDouble() ? 2 : 1);
+const dayCapPts = () => T.dailyCap * ppc() + T.dailyBonus;
+
+/* ============================ INKS & PAPER ============================ */
+const INK = { pink: '#FF48B0', blue: '#0078BF', yellow: '#FFE800', paper: '#F7F1E3', red: '#FF4100' };
+// each class star is printed with one or two inks (two inks overprint = a new colour)
+const STAR_INKS = { ARC: ['pink'], BET: ['yellow', 'pink'], CAP: ['yellow'] };
+const STAR_EDGE = { ARC: 'blue', BET: 'blue', CAP: 'blue' };
+(function grain() {
+  const c = document.createElement('canvas'); c.width = c.height = 160; const g = c.getContext('2d'); const d = g.createImageData(160, 160);
+  for (let i = 0; i < d.data.length; i += 4) { const v = 200 + Math.random() * 55; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = Math.random() < .5 ? 40 : 0; }
+  g.putImageData(d, 0, 0); document.documentElement.style.setProperty('--grain', `url(${c.toDataURL()})`);
+})();
+
+/* ============================ SOUND (Web Audio, no files) ============================ */
+const SFX = {
+  ctx: null, on: localStorage.getItem('sf-sound') !== 'off', hum: null,
+  wake() { if (!this.on) return; try { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state === 'suspended') this.ctx.resume(); } catch (e) { } },
+  tone(f, dur, type = 'sine', vol = .2, to = null, delay = 0) {
+    if (!this.on || !this.ctx) return; const t = this.ctx.currentTime + delay, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g).connect(this.ctx.destination); o.start(t); o.stop(t + dur + .02);
+  },
+  noise(dur, f0, f1, vol = .2) {
+    if (!this.on || !this.ctx) return; const t = this.ctx.currentTime, n = this.ctx.createBufferSource(), b = this.ctx.createBuffer(1, this.ctx.sampleRate * dur, this.ctx.sampleRate);
+    const ch = b.getChannelData(0); for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1; n.buffer = b;
+    const f = this.ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 1.2; f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    const g = this.ctx.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur); n.connect(f).connect(g).connect(this.ctx.destination); n.start(t);
+  },
+  key() { this.tone(900, .05, 'square', .04); },
+  whoosh() { this.noise(.4, 300, 3500, .3); },
+  hit(streak) { this.tone(80, .45, 'sine', .55, 40); this.noise(.25, 1200, 200, .2);
+    const base = 392 * Math.pow(2, Math.min(streak, 8) / 12); [0, 4, 7, 12].forEach((s, i) => this.tone(base * Math.pow(2, s / 12), .25, 'triangle', .08, null, .05 + i * .06)); },
+  fizzle() { this.tone(520, .4, 'sine', .25, 110); this.noise(.3, 800, 300, .12); },
+  supernova() { this.noise(2.2, 100, 4000, .35); [0, 7, 12, 16, 19, 24].forEach((s, i) => this.tone(196 * Math.pow(2, s / 12), 1.6, 'triangle', .07, null, i * .12)); },
+  toggle() { this.on = !this.on; localStorage.setItem('sf-sound', this.on ? 'on' : 'off'); if (this.on) this.wake(); },
+};
+document.addEventListener('pointerdown', () => SFX.wake(), { once: false });
+
+/* ============================ DATA (Firebase or demo) ============================ */
+// Each player document: name, cls, total, dayIdx, dayPts, rounds, tc, ta, createdAt,
+// and (from v1.8) lastAt (server time of the last saved round) and lastGain (points that round added).
+let players = [], me = null, uid = null, fb = null; const listeners = [];
+let unsub = null, playing = false;
+const emit = () => { me = players.find(p => p.id === uid) || null; listeners.forEach(f => f()); };
+const normalizePlayer = (id, d) => ({ id, ...d, last: d.lastAt && d.lastAt.toMillis ? d.lastAt.toMillis() : (d.last || 0) });
+// Listening to the whole class list costs one read for every change, for every phone that is listening.
+// To stay inside the free Firebase limit, a phone stops listening while it is playing a round, and when
+// the page has been hidden for a while. It starts again when the student comes back.
+function subscribe() {
+  if (DEMO || unsub || !fb) return Promise.resolve();
+  const { fsM, db } = fb;
+  return new Promise((res) => {
+    unsub = fsM.onSnapshot(fsM.collection(db, 'players'),
+      (snap) => { players = snap.docs.map(d => normalizePlayer(d.id, d.data({ serverTimestamps: 'estimate' }))); emit(); res(); },
+      (err) => { unsub = null; toast(err.code === 'resource-exhausted' ? 'The live sky is resting (the free daily limit). You can still play, and your points will save.' : 'Could not load the sky: ' + err.code); res(); });
+  });
+}
+function unsubscribe() { if (unsub) { try { unsub(); } catch (e) { } unsub = null; } }
+async function initData() {
+  if (DEMO) {
+    uid = localStorage.getItem('sf-demo-uid') || ('demo-' + Math.random().toString(36).slice(2, 8)); localStorage.setItem('sf-demo-uid', uid);
+    const seedNames = ['Ava R.', 'Brandon K.', 'Chloe M.', 'Daniel P.', 'Ella S.', 'Faith T.', 'Gabriel L.', 'Hannah B.', 'Isaiah C.', 'Jada W.', 'Kyle D.', 'Leah G.'];
+    let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    players = [];
+    T.classes.forEach((c, ci) => seedNames.forEach((n, i) => { const tot = Math.floor(rnd() * 180 * (1 - ci * .12));
+      const tc = {}, ta = {}; ['ops', 'number', 'algebra', 'powers', 'fractions'].forEach((k, j) => { ta[k] = Math.floor(rnd() * tot * .5 * (j === 4 ? .3 : 1)); tc[k] = Math.floor(ta[k] * (.4 + rnd() * .5)); });
+      const recent = rnd() < .5;
+      players.push({ id: `seed-${c.id}-${i}`, name: n, cls: c.id, total: tot, dayIdx: dayIdx() - (rnd() < .5 ? 0 : 1), dayPts: Math.min(tot, 30), rounds: Math.ceil(tot / 8), tc, ta,
+        last: recent && tot > 0 ? Date.now() - Math.floor(rnd() * 3 * 3600000) : 0, lastGain: 3 + Math.floor(rnd() * 12) }); }));
+    const mine = JSON.parse(localStorage.getItem('sf-demo-me') || 'null'); if (mine) players.push(mine);
+    emit();
+    // In demo mode, pretend classmates keep playing so you can watch the live panel move. Add &still to stop that.
+    if (!params.has('still')) setInterval(() => {
+      const bots = players.filter(p => p.id.startsWith('seed-')); if (!bots.length) return;
+      const p = pick(bots), g = R(3, 14), same = p.dayIdx === dayIdx(), k = pick(['ops', 'number', 'algebra', 'powers', 'fractions']);
+      p.total += g; p.rounds += 1; p.dayPts = Math.min(45, (same ? p.dayPts : 0) + g); p.dayIdx = dayIdx();
+      p.ta[k] = (p.ta[k] || 0) + 10; p.tc[k] = (p.tc[k] || 0) + Math.min(10, Math.max(0, Math.round(g * .8)));
+      p.last = Date.now(); p.lastGain = g; emit();
+    }, 6000);
+    return;
+  }
+  const V = '10.14.1', base = `https://www.gstatic.com/firebasejs/${V}/`;
+  const [appM, authM, fsM] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')]);
+  const fapp = appM.initializeApp(FIREBASE_CONFIG);
+  const db = fsM.initializeFirestore(fapp, { localCache: fsM.persistentLocalCache({ tabManager: fsM.persistentMultipleTabManager() }) });
+  const auth = authM.getAuth(fapp); fb = { fsM, db };
+  await new Promise((res, rej) => { authM.onAuthStateChanged(auth, (u) => { if (u) { uid = u.uid; res(); } }); authM.signInAnonymously(auth).catch(rej); });
+  await subscribe();
+}
+async function createPlayer(name, cls) {
+  const doc = { name, cls, total: 0, dayIdx: dayIdx(), dayPts: 0, rounds: 0, tc: {}, ta: {} };
+  if (DEMO) { const p = { id: uid, ...doc, last: 0, lastGain: 0 }; players.push(p); localStorage.setItem('sf-demo-me', JSON.stringify(p)); emit(); return; }
+  const { fsM, db } = fb; await fsM.setDoc(fsM.doc(db, 'players', uid), { ...doc, createdAt: fsM.serverTimestamp() });
+}
+// A warning bar at the top of the screen (for a wrong phone clock, or a round that did not save).
+const warnGone = {};
+function warn(key, html) {
+  let b = document.querySelector('.clockwarn');
+  if (!html) { if (b && b.dataset.key === key) b.remove(); return; }
+  if (warnGone[key] && key === 'clock') return;
+  if (!b) { b = document.createElement('div'); b.className = 'clockwarn'; document.body.appendChild(b); }
+  b.dataset.key = key; b.innerHTML = `<span>${html}</span><button aria-label="Close">✕</button>`;
+  b.querySelector('button').onclick = () => { warnGone[key] = true; b.remove(); };
+}
+const CLOCK_FIX = "Open your phone's Settings, go to Date &amp; Time, switch on <u>Automatic</u> (or Set Automatically), then refresh this page.";
+// Every saved round carries the server's own clock (lastAt). If our clock says it is earlier than a round that was
+// already saved, this phone's clock is behind, and its points may not count.
+function clockCheck() {
+  if (DEMO || view !== 'player') return;
+  const newest = players.reduce((m, p) => Math.max(m, p.last || 0), 0);
+  if (newest && Date.now() < newest - 3 * 60000) warn('clock', "Your phone's clock is behind the real time, so your points may not count. " + CLOCK_FIX);
+  else if (document.querySelector('.clockwarn[data-key=clock]')) warn('clock', null);
+}
+function saveRound(gain, tally) {
+  const prev = { total: me.total, dayIdx: me.dayIdx, dayPts: me.dayPts, rounds: me.rounds, tc: me.tc, ta: me.ta, lastGain: me.lastGain || 0, last: me.last || 0 };
+  const t = dayIdx(), same = me.dayIdx === t, tc = { ...(me.tc || {}) }, ta = { ...(me.ta || {}) };
+  for (const k in tally) { tc[k] = (tc[k] || 0) + tally[k][0]; ta[k] = (ta[k] || 0) + tally[k][1]; }
+  const upd = { total: me.total + gain, dayIdx: t, dayPts: (same ? me.dayPts : 0) + gain, rounds: me.rounds + 1, tc, ta, lastGain: gain };
+  Object.assign(me, upd, { last: Date.now() });
+  markDay(t);
+  if (DEMO) { localStorage.setItem('sf-demo-me', JSON.stringify(me)); emit(); return; }
+  emit(); const { fsM, db } = fb;
+  fsM.updateDoc(fsM.doc(db, 'players', uid), { ...upd, lastAt: fsM.serverTimestamp() }).then(() => warn('save', null), (e) => {
+    const cur = players.find(p => p.id === uid); if (cur) Object.assign(cur, prev); emit();     // take back the points that did not save
+    warn('save', e.code === 'permission-denied'
+      ? 'Your last round did not save, so those points are not counted. The usual cause is the phone clock. ' + CLOCK_FIX
+      : 'Your last round did not save (' + (e.code || 'error') + '). Check your signal, then play another round.');
+  });
+}
+// The class's weak spot: the topic with the fewest hits for how much it counts in the exam.
+function classMission(clsId) {
+  const ps = players.filter(p => p.cls === clsId), keys = ['ops', 'number', 'algebra', 'powers', 'fractions'];
+  const hits = {}, tries = {}; keys.forEach(k => { hits[k] = ps.reduce((a, p) => a + ((p.tc || {})[k] || 0), 0); tries[k] = ps.reduce((a, p) => a + ((p.ta || {})[k] || 0), 0); });
+  const k = keys.slice().sort((a, b) => hits[a] / TOPICS[a].weight - hits[b] / TOPICS[b].weight)[0];
+  return { k, hits, tries };
+}
+function standings() {
+  const t = dayIdx();
+  return T.classes.map(c => {
+    const ps = players.filter(p => p.cls === c.id), sum = ps.reduce((s, p) => s + (p.total || 0), 0);
+    return { ...c, sum, score: sum / c.size, playedToday: ps.filter(p => p.dayIdx === t && p.rounds > 0).length, joined: ps.length,
+      top: ps.slice().sort((a, b) => b.total - a.total).filter(p => p.total > 0).slice(0, 5) };
+  }).sort((a, b) => b.score - a.score);
+}
+
+/* ============================ DRAWING: STARS ============================ */
+function starPath(g, x, y, r1, r2, pts = 5, rot = -Math.PI / 2, wob = 0) {
+  g.beginPath(); for (let k = 0; k < pts * 2; k++) { const r = (k % 2 ? r2 : r1) * (1 + (wob ? Math.sin(k * 7.3 + wob) * .04 : 0)), a = rot + k * Math.PI / pts; g.lineTo(x + r * Math.cos(a), y + r * Math.sin(a)); } g.closePath();
+}
+// a riso-printed star: paper knock-out, then each ink plate slightly off-register, multiplied
+function risoStar(g, x, y, r, cls, t = 0, flare = 0) {
+  const inks = STAR_INKS[cls], r2 = r * .46, wob = t * .002;
+  // halftone glow
+  g.save(); g.fillStyle = INK[inks[inks.length - 1]]; g.globalAlpha = .55;
+  const glow = r * (1.5 + flare * .8); for (let yy = -glow; yy <= glow; yy += 7) for (let xx = -glow; xx <= glow; xx += 7) {
+    const d = Math.hypot(xx, yy); if (d > r * .7 && d < glow) { const s = 2.6 * (1 - (d - r * .7) / (glow - r * .7)); if (s > .3) { g.beginPath(); g.arc(x + xx, y + yy, s, 0, 6.3); g.fill(); } } }
+  g.restore();
+  g.save(); g.fillStyle = INK.paper; starPath(g, x, y, r * 1.08, r2 * 1.1, 5, -Math.PI / 2, wob); g.fill(); g.restore();
+  g.save(); g.globalCompositeOperation = 'multiply';
+  inks.forEach((ink, i) => { g.fillStyle = INK[ink]; starPath(g, x + (i ? 3 : 0), y + (i ? -2 : 0), r * (1 + flare * .25), r2 * (1 + flare * .25), 5, -Math.PI / 2, wob + i); g.fill(); });
+  g.lineWidth = Math.max(2, r * .05); g.strokeStyle = INK[STAR_EDGE[cls]]; starPath(g, x - 2, y + 2, r * (1 + flare * .25), r2 * (1 + flare * .25), 5, -Math.PI / 2, wob); g.stroke();
+  g.restore();
+}
+// the sky band: blue halftone that fades into the paper
+function paintSkyBand(g, w, h) {
+  g.clearRect(0, 0, w, h); g.fillStyle = INK.blue;
+  // dots shrink smoothly to nothing at the bottom, so the sky melts into the paper
+  for (let y = 0; y < h; y += 8) { const f = Math.max(0, 1 - y / h), r = Math.min(4.4, f * 3.6 + f * f * .6); if (r < .35) continue;
+    for (let x = (y / 8) % 2 ? 4 : 0; x < w; x += 8) { g.beginPath(); g.arc(x, y, r, 0, 6.3); g.fill(); } }
+  g.fillStyle = INK.paper; for (let i = 0; i < 60; i++) { const x = (i * 97.13) % w, y = (i * 53.7) % (h * .8); g.beginPath(); g.arc(x, y, (i % 3) + 1, 0, 6.3); g.fill(); }
+}
+
+/* a printed paper label so text stays readable on the halftone sky */
+function tag(g, lines, x, y, rot = -.03) {
+  g.save(); g.translate(x, y); g.rotate(rot);
+  const ws = lines.map(l => { g.font = l.font; return g.measureText(l.text).width; }), w = Math.max(...ws) + 16, h = lines.reduce((a, l) => a + l.size * 1.15, 0) + 10;
+  g.fillStyle = INK.paper; g.fillRect(-w / 2, -6, w, h); g.strokeStyle = INK.blue; g.lineWidth = 2; g.strokeRect(-w / 2, -6, w, h);
+  g.textAlign = 'center'; g.textBaseline = 'top'; let yy = -1;
+  lines.forEach(l => { g.font = l.font; if (l.shadow) { g.fillStyle = INK[l.shadow]; g.fillText(l.text, 2, yy + 2); } g.fillStyle = INK[l.ink || 'blue']; g.fillText(l.text, 0, yy); yy += l.size * 1.15; });
+  g.restore();
+}
+/* ============================ THE SKY (home / board / final) ============================ */
+const sky = $('#sky'), sg = sky.getContext('2d'), fx = $('#fx'), fg = fx.getContext('2d');
+let skyMode = 'home', skyH = 0, bandCache = null, anim = { t: 0, supernova: 0 };
+function sizeCanvases() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1), w = innerWidth;
+  skyH = skyMode === 'play' ? Math.round(innerHeight * .2) : skyMode === 'none' ? 0 : Math.round(innerHeight * (document.body.classList.contains('wide') ? .5 : .52));
+  document.documentElement.style.setProperty('--skyh', skyH + 'px');
+  const full = skyH ? skyH + skyExtra : 0;   // skyExtra: extra sky that runs down behind the tutorial caption (join screen)
+  sky.width = w * dpr; sky.height = Math.max(1, full) * dpr; sky.style.height = full + 'px'; sg.setTransform(dpr, 0, 0, dpr, 0, 0);
+  fx.width = w * dpr; fx.height = innerHeight * dpr; fg.setTransform(dpr, 0, 0, dpr, 0, 0);
+  bandCache = document.createElement('canvas'); bandCache.width = w; bandCache.height = Math.max(1, full); paintSkyBand(bandCache.getContext('2d'), w, full);
+}
+let rsz = 0; addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(sizeCanvases, 150); });
+// Stars stand on a podium by RANK: 1st in the middle and highest, 2nd on the left, 3rd on the right.
+// When a class overtakes another, the stars glide to their new places.
+const SPOT = [[.5, .34], [.2, .56], [.8, .6]], RANK_SIZE = [1, .78, .64];
+const starPos = {};
+function starLayout() {
+  const w = innerWidth, st = tut ? tutStandings() : standings(), wide = document.body.classList.contains('wide');
+  const maxR = Math.min(w * (wide ? .11 : .15), skyH * .26);
+  return st.map((s, rank) => {
+    const r = maxR * RANK_SIZE[Math.min(rank, 2)], sp = SPOT[Math.min(rank, 2)];
+    const ty = Math.min(Math.max(sp[1] * skyH, r * 1.15 + 8), skyH - r - (wide ? 90 : 62)), tx = sp[0] * w;
+    const p = starPos[s.id] || (starPos[s.id] = { x: tx, y: ty, r });
+    p.x += (tx - p.x) * .06; p.y += (ty - p.y) * .06; p.r += (r - p.r) * .06;   // glide
+    p.s = p.s === undefined ? s.score : p.s + (s.score - p.s) * .08;              // score counts up
+    return { ...s, rank, x: p.x, y: p.y, r: p.r, shown: p.s };
+  });
+}
+/* ---------- HOW IT WORKS: a 12-second mini tutorial played in the sky ----------
+   Pretend comets shoot up from below and boost the stars one by one. The stars swap places
+   as their scores change, one class takes 1st and shines, then the real sky comes back. */
+let tut = null, tutLoop = false, nextTutAt = 0, tutRound = 0;
+// Each run gets a fresh script: a different class wins every time (in turn), and the class
+// that starts in 3rd climbs past both others. Times are in seconds.
+function makeTutScript() {
+  const ids = T.classes.map(c => c.id), winner = ids[tutRound++ % ids.length];
+  const others = shuffle(ids.filter(x => x !== winner)), runner = others[0], climber = others[1];
+  return {
+    winner, hit: 3, end: 17,
+    start: { [winner]: 12, [runner]: 18, [climber]: 15 },
+    shots: [[1.4, climber], [2.3, climber], [3.2, climber],
+      [6.0, winner], [6.9, winner], [7.6, runner], [8.3, winner], [9.1, winner], [9.9, winner]],
+    captions: [[0, 'EVERY RIGHT ANSWER IS A COMET…'], [2.4, '…THAT BOOSTS YOUR CLASS STAR'], [5.0, 'MORE HITS = HIGHER PLACE'],
+      [11.2, `${CLS[winner].name.toUpperCase()} TAKES 1ST AND SHINES!`], [13.6, 'GET YOUR CLASS TO THE TOP!'], [15.6, 'NOW, THE REAL SKY']],
+  };
+}
+function startTutorial() { const sc = makeTutScript(); tut = { sc, t0: performance.now(), scores: { ...sc.start }, comets: [], fired: 0, floats: [], cheered: false }; }
+function stopTutorial() { tut = null; tutLoop = false; showCaption(null); }
+// the caption sits on the paper BELOW the sky, so it never covers the stars
+function showCaption(text) { const el = $('#tutcap'); if (!el) return; if (el.dataset.t === (text || '')) return; el.dataset.t = text || '';
+  el.innerHTML = text ? `${text}<small>HOW IT WORKS · TAP THE SKY TO SKIP</small>` : ''; el.classList.toggle('on', !!text); }
+function tutStandings() { return T.classes.map(c => ({ ...c, score: tut.scores[c.id], top: [], playedToday: 0, joined: 0, sum: 0 })).sort((a, b) => b.score - a.score); }
+function drawTutorial(ts, L) {
+  const w = innerWidth, el = (ts - tut.t0) / 1000, TUT = tut.sc;
+  if (el > TUT.end) { tut = null; showCaption(null); nextTutAt = ts + 7000; return; }
+  while (tut.fired < TUT.shots.length && TUT.shots[tut.fired][0] <= el) { const id = TUT.shots[tut.fired][1]; tut.comets.push({ id, x0: w * (.15 + .7 * Math.random()), y0: skyH + 30, k: 0 }); tut.fired++; }
+  for (let i = tut.comets.length - 1; i >= 0; i--) {
+    const c = tut.comets[i], t = L.find(s => s.id === c.id); if (!t) continue;
+    c.k = Math.min(1, c.k + .022); const e = 1 - Math.pow(1 - c.k, 2), x = c.x0 + (t.x - c.x0) * e, y = c.y0 + (t.y - c.y0) * e;
+    drawComet(sg, x, y, Math.atan2(t.y - c.y0, t.x - c.x0), 1 + .7 * Math.sin(Math.PI * c.k), '', ts);
+    if (c.k >= 1) { tut.scores[c.id] += TUT.hit; tut.floats.push({ id: c.id, t: ts }); burst(t.x, t.y - scrollY, 28, ['pink', 'yellow'], 7); tut.comets.splice(i, 1); }
+  }
+  tut.floats = tut.floats.filter(f => ts - f.t < 900);
+  tut.floats.forEach(f => { const t = L.find(s => s.id === f.id); if (!t) return; const a = (ts - f.t) / 900;
+    sg.save(); sg.globalAlpha = 1 - a; sg.font = `${Math.round(t.r * .45 + 10)}px 'Bowlby One', 'Arial Black', serif`; sg.textAlign = 'center';
+    sg.fillStyle = INK.pink; sg.fillText('+' + TUT.hit, t.x + t.r * .9 + 2, t.y - t.r * .6 - a * 30 + 2); sg.fillStyle = INK.blue; sg.fillText('+' + TUT.hit, t.x + t.r * .9, t.y - t.r * .6 - a * 30); sg.restore(); });
+  if (el > 11.2 && !tut.cheered) { tut.cheered = true; const lead = L[0]; burst(lead.x, lead.y - scrollY, 80, ['pink', 'yellow'], 11); }
+  const cap = TUT.captions.filter(c => c[0] <= el).pop();
+  showCaption(cap ? cap[1] : null);
+}
+// the leader shines: slow turning rays, a gentle pulse and sparkles
+function leaderShine(g, s, ts) {
+  g.save(); g.globalCompositeOperation = 'multiply';
+  const turn = ts * .00025, pulse = .85 + .15 * Math.sin(ts / 420);
+  for (let k = 0; k < 16; k++) { const a = turn + k * Math.PI / 8, len = s.r * (1.7 + .25 * Math.sin(ts / 500 + k)) * pulse;
+    g.strokeStyle = k % 2 ? INK.pink : INK.yellow; g.lineWidth = k % 2 ? 3 : 5; g.globalAlpha = .75;
+    g.beginPath(); g.moveTo(s.x + s.r * .9 * Math.cos(a), s.y + s.r * .9 * Math.sin(a)); g.lineTo(s.x + len * Math.cos(a), s.y + len * Math.sin(a)); g.stroke(); }
+  g.restore();
+  for (let k = 0; k < 4; k++) { const a = -turn * 3 + k * Math.PI / 2, d = s.r * 1.35, tw = .5 + .5 * Math.sin(ts / 260 + k * 1.7);
+    g.save(); g.fillStyle = INK.paper; g.globalAlpha = .4 + .6 * tw; starPath(g, s.x + d * Math.cos(a), s.y + d * Math.sin(a), 5 + 5 * tw, 1.6, 4, 0); g.fill(); g.restore(); }
+}
+function drawSky(ts) {
+  anim.t = ts; const w = innerWidth;
+  sg.clearRect(0, 0, w, skyH + skyExtra); if (!skyH) return;
+  sg.drawImage(bandCache, 0, 0);
+  if (skyMode === 'play') { const c = me ? me.cls : 'ARC'; risoStar(sg, w / 2, skyH * .55, skyH * .36, c, ts, playFlare); playFlare *= .92; return; }
+  const L = starLayout(), wide = document.body.classList.contains('wide');
+  L.forEach(s => {
+    // constellation of top players
+    if (s.top.length && (wide || (me && me.cls === s.id))) {
+      const pts = s.top.map((p, i) => { const a = -2.4 + i * 1.15 + (s.id.charCodeAt(0) % 5) * .2, d = s.r * (1.9 + (i % 2) * .5); return [Math.min(w - 70, Math.max(70, s.x + d * Math.cos(a))), Math.min(skyH - 30, Math.max(14, s.y + d * Math.sin(a) * .8)), p]; });
+      sg.save(); sg.strokeStyle = INK.paper; sg.lineWidth = 1.5; sg.setLineDash([3, 4]); sg.beginPath(); pts.forEach(([x, y], i) => i ? sg.lineTo(x, y) : sg.moveTo(x, y)); sg.stroke(); sg.restore();
+      pts.forEach(([x, y, p]) => { sg.fillStyle = INK.yellow; starPath(sg, x, y, 6, 2.6); sg.fill(); if (wide) { const f = Math.round(innerWidth / 100); tag(sg, [{ text: `${p.name} · ${p.total}`, font: `700 ${f}px 'Courier Prime', monospace`, size: f }], x, y + 10, .02); } });
+    }
+    const nova = anim.supernova && s.rank === 0 ? Math.min(1, (ts - anim.supernova) / 2200) : 0;
+    if (nova) { sg.save(); sg.globalCompositeOperation = 'multiply'; for (let k = 0; k < 24; k++) { const a = k * Math.PI / 12 + ts * .0003, len = s.r * (1.4 + nova * 4); sg.strokeStyle = k % 2 ? INK.pink : INK.yellow; sg.lineWidth = 6; sg.beginPath(); sg.moveTo(s.x, s.y); sg.lineTo(s.x + len * Math.cos(a), s.y + len * Math.sin(a)); sg.stroke(); } sg.restore(); }
+    if (s.rank === 0 && !nova) leaderShine(sg, s, ts);
+    const pulse = s.rank === 0 && !nova ? 1 + .035 * Math.sin(ts / 420) : 1 + .01 * Math.sin(ts / 900 + s.x);
+    risoStar(sg, s.x, s.y, s.r * (1 + nova * .3) * pulse, s.id, ts, Math.sin(ts / 600 + s.x) * .05 + nova * .4);
+    const fs = Math.round(Math.max(12, Math.min(w / (wide ? 48 : 27), 30))), ly = s.y + s.r * (1 + nova * .55) + 8;
+    tag(sg, [{ text: s.name.toUpperCase(), font: `${fs}px 'Bowlby One', 'Arial Black', serif`, size: fs, shadow: 'pink' },
+      { text: `${one(s.shown)} pts/student`, font: `700 ${Math.round(fs * .72)}px 'Courier Prime', monospace`, size: Math.round(fs * .72) }], s.x, ly, s.id === 'BET' ? .03 : -.03);
+    sg.textAlign = 'center'; sg.textBaseline = 'alphabetic';
+    sg.font = `${Math.round(fs * .85)}px 'Bowlby One', 'Arial Black', serif`; sg.fillStyle = INK.blue; sg.fillText(place(s.rank).toUpperCase(), s.x, s.y + fs * .3);
+  });
+  if (tut) drawTutorial(ts, L);
+  else if (tutLoop && ts > nextTutAt) startTutorial();   // play again after a pause, with a new winner
+}
+let playFlare = 0;
+let lastSky = 0;
+function loop(ts) {
+  const busy = skyMode !== 'none' || anim.supernova || parts.length || comet;
+  if (busy || ts - lastSky > 50) { drawSky(ts); lastSky = ts; }
+  drawFx(ts); requestAnimationFrame(loop);
+}
+
+/* ============================ FX LAYER: comet + particles ============================ */
+const parts = []; let comet = null, shakeT = 0;
+function burst(x, y, n, inks, spd = 6) { for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, v = Math.random() * spd + 1; parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1, ink: pick(inks), s: Math.random() * 5 + 2 }); } }
+function drawComet(g, x, y, ang, stretch, label, ts) {
+  g.save(); g.translate(x, y); g.rotate(ang);
+  g.globalCompositeOperation = 'multiply';
+  for (let i = 1; i <= 6; i++) { g.fillStyle = i % 2 ? INK.pink : INK.yellow; g.globalAlpha = .5 - i * .06; g.beginPath(); g.ellipse(-i * 11 * stretch, 0, 14 - i, 10 - i * .9, 0, 0, 6.3); g.fill(); }
+  g.globalAlpha = 1; g.fillStyle = INK.yellow; g.beginPath(); g.ellipse(0, 0, 24 * stretch, 24 / Math.sqrt(stretch), 0, 0, 6.3); g.fill();
+  g.fillStyle = INK.pink; g.beginPath(); g.ellipse(3, -2, 20 * stretch, 20 / Math.sqrt(stretch), 0, 0, 6.3); g.fill();
+  g.globalCompositeOperation = 'source-over'; g.strokeStyle = INK.blue; g.lineWidth = 3; g.beginPath(); g.ellipse(-1, 1, 22 * stretch, 22 / Math.sqrt(stretch), 0, 0, 6.3); g.stroke();
+  g.restore();
+  if (label) { g.save(); g.font = `20px 'Bowlby One', serif`; g.textAlign = 'center'; g.fillStyle = INK.blue; g.fillText(label, x, y + 7); g.restore(); }
+}
+function drawFx(ts) {
+  fg.clearRect(0, 0, innerWidth, innerHeight);
+  if (shakeT > 0) { shakeT--; }
+  for (let i = parts.length - 1; i >= 0; i--) { const p = parts[i]; p.x += p.vx; p.y += p.vy; p.vy += .12; p.vx *= .98; p.life -= .022; if (p.life <= 0) { parts.splice(i, 1); continue; }
+    fg.globalAlpha = p.life; fg.fillStyle = INK[p.ink]; fg.beginPath(); fg.arc(p.x, p.y, p.s * p.life, 0, 6.3); fg.fill(); }
+  fg.globalAlpha = 1;
+  if (comet) {
+    const c = comet;
+    if (c.state === 'rest') { const bob = Math.sin(ts / 300) * 4; drawComet(fg, c.x, c.y + bob, -Math.PI / 2, 1, c.label, ts); if (c.drag) { fg.strokeStyle = INK.blue; fg.setLineDash([6, 6]); fg.lineWidth = 3; fg.beginPath(); fg.moveTo(c.x, c.y); fg.lineTo(c.x - c.drag.dx, c.y - c.drag.dy); fg.stroke(); fg.setLineDash([]); } }
+    else if (c.state === 'fly') {
+      if (c.hold > 0) { c.hold--; drawComet(fg, c.cx, c.cy, c.ang, 1.6, c.label, ts); return; }
+      c.k = Math.min(1, c.k + c.speed); const e = 1 - Math.pow(1 - c.k, 2);
+      const leg = c.path[c.leg], nx = leg[0] + (leg[2] - leg[0]) * e, ny = leg[1] + (leg[3] - leg[1]) * e, ang = Math.atan2(leg[3] - leg[1], leg[2] - leg[0]);
+      c.cx = nx; c.cy = ny; c.ang = ang;
+      if (Math.random() < .8) parts.push({ x: nx, y: ny, vx: (Math.random() - .5) * 1.5, vy: (Math.random() - .5) * 1.5, life: .7, ink: pick(['pink', 'yellow']), s: 4 });
+      drawComet(fg, nx, ny, ang, 1 + 0.9 * Math.sin(Math.PI * c.k), c.label, ts);
+      if (c.k >= 1) { const done = c.onLeg && c.onLeg(c.leg); c.leg++; c.k = 0; c.hold = 5; if (c.leg >= c.path.length || done === 'stop') { comet = null; c.onDone && c.onDone(); } }
+    }
+  }
+}
+
+/* ============================ LIVE: who is where, and what to say about it ============================ */
+const TYP_HITS = 8;               // a typical round: about 8 right out of 10
+const ACTIVE_MS = 15 * 60000;     // "active" = finished a round in the last 15 minutes
+const news = [];                  // rank changes seen while this page was open
+// How many points the class `behind` still needs to pass the class `ahead` (both come from standings()).
+const ptsToPass = (behind, ahead) => Math.max(1, Math.floor(ahead.score * behind.size - behind.sum + 1e-9) + 1);
+const activeCount = (cid) => players.filter(p => p.cls === cid && p.last > Date.now() - ACTIVE_MS).length;
+function markDay(t) { try { const d = JSON.parse(localStorage.getItem('sf-days')) || []; if (!d.includes(t)) { d.push(t); localStorage.setItem('sf-days', JSON.stringify(d.slice(-14))); } } catch (e) { } }
+function streakDays() { let d = []; try { d = JSON.parse(localStorage.getItem('sf-days')) || []; } catch (e) { } const set = new Set(d); let t = dayIdx(), n = 0; if (!set.has(t)) t--; while (set.has(t)) { n++; t--; } return n; }
+function seenSave() { if (!me) return; try { localStorage.setItem('sf-seen', JSON.stringify({ t: Date.now(), rank: standings().findIndex(s => s.id === me.cls) })); } catch (e) { } }
+function welcomeBack() {
+  let s = null; try { s = JSON.parse(localStorage.getItem('sf-seen')); } catch (e) { }
+  if (!s || Date.now() - s.t < 12 * 60000) return '';
+  const r = standings().findIndex(x => x.id === me.cls), cn = CLS[me.cls].name, bits = [];
+  const mates = players.filter(p => p.cls === me.cls && p.id !== uid && p.last > s.t).length;
+  const others = players.filter(p => p.cls !== me.cls && p.last > s.t).length;
+  if (mates) bits.push(`${mates} ${mates === 1 ? 'classmate has' : 'classmates have'} finished rounds`);
+  if (r < s.rank) bits.push(`${cn} has climbed from ${place(s.rank)} to ${place(r)}`);
+  else if (r > s.rank) bits.push(`${cn} has slipped from ${place(s.rank)} to ${place(r)}`);
+  if (!bits.length) return others ? `Welcome back! ${others} students in the other classes have finished rounds since you were last here.` : '';
+  return `Welcome back! Since you were last here, ${bits.join(', and ')}.`;
+}
+// Everything the live panel and the coach need to know about this student and their class, right now.
+function liveCtx() {
+  if (!me) return null;
+  const st = standings(), idx = st.findIndex(s => s.id === me.cls), mine = st[idx], now = Date.now();
+  const mates = players.filter(p => p.cls === me.cls).sort((a, b) => b.total - a.total);
+  const ahead = mates.filter(p => p.total > me.total);               // classmates with more points than me
+  const today = me.dayIdx === dayIdx() ? me.dayPts : 0;
+  return { st, idx, mine, lead: st[0], above: idx > 0 ? st[idx - 1] : null, below: idx < st.length - 1 ? st[idx + 1] : null,
+    mates, nPlayers: mates.length, myPos: ahead.length, tied: mates.filter(p => p.id !== me.id && p.total === me.total).length > 0, toNext: ahead.length ? ahead[ahead.length - 1].total - me.total + 1 : null,
+    today, cap: dayCapPts(), now };
+}
+// How a student hears about their own place: leaders hear their place, everyone else hears how close the next step is.
+function standingText(c, cn) {
+  const n = c.nPlayers, pos = c.myPos + 1, climb = c.toNext ? ` ${c.toNext} more points would move you up.` : '';
+  if (c.myPos === 0) return `You are ${c.tied ? 'joint ' : ''}1st in ${cn} with ${me.total} points. Keep the lead!`;
+  if (pos <= Math.ceil(n / 2)) return `You are ${c.tied ? 'joint ' : ''}${ordinal(pos)} of ${n} players in ${cn}.${climb}`;
+  return `You are on ${me.total} points. ${c.toNext} more would move you past a classmate in ${cn}. Every round counts.`;
+}
+// "about 3 rounds", or for a big gap, how many rounds each classmate would need to play
+function roundsText(r, size) { return r <= 5 ? `about ${r} ${r === 1 ? 'round' : 'rounds'}` : r <= size ? `about ${r} rounds, which is within reach if most of the class plays one round` : `about ${r} rounds in all, roughly ${Math.ceil(r / size)} from every student on the roll`; }
+// Short lines the ticker cycles through. They depend on the student's class, place, day and topics.
+function coachLines() {
+  const c = liveCtx(); if (!c) return [];
+  const ph = phase(), cn = CLS[me.cls].name, L = [], typ = TYP_HITS * ppc(), now = Date.now();
+  const left = Math.max(0, c.mine.size - c.mine.playedToday);
+  if (ph === 'before') {
+    L.push(`${c.mine.joined} of ${c.mine.size} in ${cn} have joined so far. Ask a classmate who has not.`);
+    L.push(`The forge opens ${whenStr(START)}. Practise now, and you will start strong.`);
+    L.push('Rounds now are practice. They still build your Exam readiness chart below.');
+    const a = activeCount(me.cls); if (a) L.push(`${a} in ${cn} practised in the last 15 minutes.`);
+    return L;
+  }
+  // 1. where the class stands
+  if (c.lead.sum === 0) L.push('Nobody has scored yet. The very first comet of the tournament is waiting for you.');
+  else if (c.idx === 0) {
+    const need = ptsToPass(c.below, c.mine), r = Math.ceil(need / typ);
+    L.push(need <= typ * 2 ? `${cn} is in 1st, but ${c.below.name} needs only ${need} more points to catch up, ${roundsText(r, c.below.size)}. Defend the star!`
+      : `${cn} is in 1st. ${c.below.name} needs ${need} more points to catch up, ${roundsText(r, c.below.size)}. Keep the star fuelled.`);
+  } else {
+    const need = ptsToPass(c.mine, c.above), r = Math.ceil(need / typ);
+    L.push(`${cn} is ${place(c.idx)}, and needs ${need} more points to pass ${c.above.name}. That is ${roundsText(r, c.mine.size)}.`);
+    if (left > 0) L.push(r <= left ? `If just ${r} of the ${left} classmates who have not played today play one round each, ${cn} moves up to ${place(c.idx - 1)}.`
+      : `${left} classmates have not played today. Every round from every one of them helps ${cn} climb.`);
+  }
+  // 2. who is playing right now
+  const act = activeCount(me.cls) - (me.last > now - ACTIVE_MS ? 1 : 0);
+  L.push(act > 0 ? `${act} ${act === 1 ? 'classmate' : 'classmates'} finished a round in the last 15 minutes. Join them.` : `Nobody else in ${cn} has finished a round in the last 15 minutes. Get the star moving!`);
+  const hot = c.st.filter(s => s.id !== me.cls).map(s => ({ s, n: activeCount(s.id) })).sort((a, b) => b.n - a.n)[0];
+  if (hot && hot.n >= 2) L.push(`${hot.s.name} is the busiest star right now, with ${hot.n} students playing.`);
+  const mate = players.filter(p => p.cls === me.cls && p.id !== uid && p.last > now - 30 * 60000).sort((a, b) => b.last - a.last)[0];
+  if (mate) L.push(`${mate.name} added ${mate.lastGain ? '+' + mate.lastGain : 'points'} for ${cn} ${ago(mate.last)}.`);
+  // 3. you
+  if (c.today === 0) L.push(`You have not played yet today. Your first round earns +${T.dailyBonus} extra, even if some answers are wrong.`);
+  else if (c.today >= c.cap) L.push(`Your star fuel is full for today (${c.today} of ${c.cap}). More rounds will not add points, but every question still sharpens you for the exam. Come back tomorrow for more.`);
+  else L.push(`Your star fuel is ${c.today} of ${c.cap}. ${c.cap - c.today} more points will fill it.`);
+  if (me.total === 0) L.push(`You have not scored yet. One round of ${T.roundLength} comets puts your name in the sky.`);
+  else if (c.nPlayers >= 3) L.push(standingText(c, cn));
+  const f = focusTopic(loadStats()); if (f.k !== 'mixed') L.push(`Try a ${TOPICS[f.k].label} round next, because ${f.why}.`);
+  const m = classMission(me.cls); L.push(`Class mission: ${cn} is low on ${TOPICS[m.k].label}. Every hit in a bonus round earns +${T.missionBonus} extra.`);
+  const sk = streakDays(); if (sk >= 2) L.push(`That is ${sk} days in a row that you have played. Keep the streak going!`);
+  // 4. the calendar
+  if (isDouble()) L.push(`DOUBLE POINTS today: every hit counts 2. The sky freezes tonight at ${new Date(CLOSE).toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Port_of_Spain' })}.`);
+  else if (DOUBLE_IDX - dayIdx() === 1) L.push('Tomorrow is double points day. Every hit will count 2.');
+  else L.push(`The exam is ${T.examDay}, Period 1. The sky freezes on ${whenStr(CLOSE)}.`);
+  news.filter(n => now - n.t < 20 * 60000).slice(-2).forEach(n => L.push(`★ ${n.text} (${ago(n.t)})`));
+  return L;
+}
+// A before/after picture of where this student and class stand, to show what one round did.
+function rankSnap() {
+  const c = liveCtx(); if (!c) return null;
+  return { cr: c.idx, upName: c.above && c.above.name, gapUp: c.above ? ptsToPass(c.mine, c.above) : 0,
+    downName: c.below && c.below.name, gapDown: c.below ? ptsToPass(c.below, c.mine) : 0, myPos: c.myPos, toNext: c.toNext };
+}
+function movedHTML(b, a, gain) {
+  if (!b || !a || gain <= 0) return '';
+  const cn = CLS[me.cls].name, out = [];
+  if (a.cr < b.cr) out.push(`<b>${cn} CLIMBED from ${place(b.cr)} to ${place(a.cr)}!</b> Your round did that.`);
+  else if (a.cr === 0) out.push(`${cn} holds 1st. ${esc(a.downName)} needs ${a.gapDown} points to catch you.`);
+  else out.push(`${cn} is still ${place(a.cr)}. It needs ${a.gapUp} more points to pass ${esc(a.upName)}${b.gapUp > a.gapUp ? ` (it was ${b.gapUp} before your round)` : ''}.`);
+  if (a.myPos < b.myPos) out.push(`You moved up from ${ordinal(b.myPos + 1)} to <b>${ordinal(a.myPos + 1)}</b> in ${cn}.`);
+  else if (a.toNext) out.push(`${a.toNext} more points would move you up in ${cn}.`);
+  return `<div class="slip mission"><p class="h s ink-${me.cls}">★ WHAT YOUR ROUND DID</p>${out.map(x => `<p class="typed" style="margin:6px 0 0">${x}</p>`).join('')}</div>`;
+}
+/* ---------- the live box: shell built once, then updated in place so nothing jumps ---------- */
+function liveShell() {
+  return `<div class="live" id="liveBox">
+    <div class="livehead"><span class="h s"><span class="pulse"></span>LIVE · THE RACE RIGHT NOW</span><span class="tiny" id="lv-clock"></span></div>
+    <p class="typed tiny" id="welcome" style="margin:6px 0 0"></p>
+    ${T.classes.map(c => `<div class="lrow" id="lv-row-${c.id}"><div class="row"><b class="lname ink-${c.id}" id="lv-name-${c.id}"></b><span class="tiny" id="lv-pts-${c.id}"></span></div>
+      <div class="lbar"><i id="lv-bar-${c.id}" style="--c:var(--${c.id});width:0%"></i></div><div class="tiny" id="lv-sub-${c.id}"></div></div>`).join('')}
+    <p class="ticker" id="ticker" aria-live="polite"></p>
+    <p class="h s" style="margin-top:8px">JUST FINISHED</p>
+    <ul class="feed" id="feedList"></ul>
+  </div>`;
+}
+function meSlipHTML() {
+  const c = liveCtx(), ph = phase(), st = c.st, cn = CLS[me.cls].name;
+  return `<div class="row"><span class="h s ink-${me.cls}">${esc(me.name)}</span><span class="h s ink-${me.cls}">${cn} · ${place(c.idx)}</span></div>
+    ${ph === 'live' ? `<div class="gauge"><i style="width:${100 * Math.min(1, c.today / c.cap)}%"></i></div>
+      <div class="row tiny"><span>STAR FUEL TODAY ${c.today} / ${c.cap}</span><span>TOTAL ${me.total} · ${me.rounds} ROUNDS</span></div>
+      <p class="typed" style="margin:8px 0 0"><b class="ink-${me.cls}">${c.mine.playedToday} of ${c.mine.size}</b> in ${cn} have played today.${c.idx > 0 ? ` ${cn} needs <b>${ptsToPass(c.mine, st[0])}</b> more points to take 1st place.` : ' You are in 1st place. Keep it!'}</p>
+      ${c.nPlayers >= 2 && me.total > 0 ? `<p class="typed" style="margin:6px 0 0">${standingText(c, cn)}</p>` : ''}`
+      : `<p class="tiny">The forge opens ${whenStr(START)}. You can practise now, but no comets count yet.</p>`}`;
+}
+function missionHTML() {
+  if (phase() !== 'live') return '';
+  const m = classMission(me.cls), cn = CLS[me.cls].name;
+  return `<div class="slip mission"><p class="h s ink-${me.cls}">★ CLASS MISSION</p>
+    <p class="typed" style="margin:6px 0">${cn} is low on <b>${TOPICS[m.k].label}</b> hits (only ${m.hits[m.k]} so far). Play a bonus round: every ${TOPICS[m.k].label} comet you hit earns <b>+${T.missionBonus} extra</b> for your class.</p>
+    <button class="sticker" id="mission" style="margin-bottom:4px">BONUS ROUND: ${TOPICS[m.k].label.toUpperCase()} ➚</button></div>`;
+}
+function bindMission() { const b = $('#mission'); if (b) b.onclick = () => { SFX.wake(); SFX.whoosh(); playRound(classMission(me.cls).k, true); }; }
+function constHTML() {
+  const top = (standings().find(s => s.id === me.cls) || { top: [] }).top; if (!top.length) return '';
+  return `<p class="h s ink-${me.cls}">${CLS[me.cls].name} constellation</p><ol class="typed" style="margin:6px 0 0 18px;padding:0">${top.map(p => `<li>${esc(p.name)} — ${p.total}${p.id === uid ? ' (you)' : ''}</li>`).join('')}</ol>`;
+}
+let tickLines = [], tickIdx = 0; const feedSeen = new Set();
+function nextTicker() {
+  const el = $('#ticker'); if (!el || !tickLines.length) return;
+  tickIdx = (tickIdx + 1) % tickLines.length; el.classList.add('fade');
+  setTimeout(() => { const e2 = $('#ticker'); if (e2) { e2.textContent = tickLines[tickIdx] || ''; e2.classList.remove('fade'); } }, 300);
+}
+function patchLive(first) {
+  if (!me) return; const box = $('#liveBox'); if (!box) return;
+  const c = liveCtx(), ph = phase(), max = Math.max(1, c.st[0].score);
+  c.st.forEach((s, i) => {
+    const row = $('#lv-row-' + s.id); if (!row) return; row.classList.toggle('mine', s.id === me.cls);
+    $('#lv-name-' + s.id).textContent = `${place(i)} ${s.name}`;
+    $('#lv-pts-' + s.id).textContent = ph === 'before' ? '' : `${one(s.score)} pts/student`;
+    $('#lv-bar-' + s.id).style.width = (ph === 'before' ? Math.max(3, 100 * s.joined / s.size) : Math.max(3, 100 * s.score / max)) + '%';
+    const act = activeCount(s.id);
+    $('#lv-sub-' + s.id).textContent = ph === 'before' ? `${s.joined} of ${s.size} have joined` : `${s.playedToday} of ${s.size} played today${act ? ` · ${act} finished a round in the last 15 min` : ''}`;
+  });
+  $('#lv-clock').textContent = 'updated ' + new Date().toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'America/Port_of_Spain' });
+  if (first) $('#welcome').textContent = welcomeBack();
+  const items = players.filter(p => p.id !== uid && p.last > 0).sort((a, b) => b.last - a.last).slice(0, 5), seeded = feedSeen.size > 0;
+  $('#feedList').innerHTML = items.length ? items.map(p => {
+    const key = p.id + ':' + p.last, isNew = seeded && !feedSeen.has(key); feedSeen.add(key);
+    const mine = p.cls === me.cls, who = mine ? esc(p.name) : `Someone in ${CLS[p.cls].name}`;
+    return `<li class="${isNew ? 'new' : ''}"><b class="ink-${p.cls}">${who}</b> added ${p.lastGain ? '+' + p.lastGain : 'points'} for ${mine ? 'the star' : 'their star'} <span class="tiny">· ${ago(p.last)}</span></li>`;
+  }).join('') : '<li>Nothing finished yet. The first comets are yours to throw.</li>';
+  tickLines = coachLines(); const tk = $('#ticker');
+  if (tk && (first || !tk.textContent)) { tickIdx = 0; tk.textContent = tickLines[0] || ''; }
+  const ms = $('#meSlip'); if (ms) ms.innerHTML = meSlipHTML();
+  const ct = $('#constel'); if (ct) { ct.innerHTML = constHTML(); ct.style.display = ct.innerHTML.trim() ? '' : 'none'; }
+  const mb = $('#missionBox'); if (mb) { mb.innerHTML = missionHTML(); bindMission(); }
+}
+let patchTimer = 0;
+function schedulePatch() { if (patchTimer) return; patchTimer = setTimeout(() => { patchTimer = 0; patchLive(); }, 1200); }
+
+/* ============================ SCREENS ============================ */
+let skyExtra = 0;
+function setSky(mode, extra = 0) { skyMode = mode; skyExtra = extra; sizeCanvases(); }
+function soundBtn() { return `<button class="muted-btn" id="snd">${SFX.on ? '🔊 SOUND' : '🔇 SOUND'}</button>`; }
+function wireSound() { const b = $('#snd'); if (b) b.onclick = (e) => { e.stopPropagation(); SFX.toggle(); b.textContent = SFX.on ? '🔊 SOUND' : '🔇 SOUND'; }; }
+function title() { return `<div style="padding-top:12px" class="row"><span></span><span class="stamp">${DEMO ? 'DEMO PRINT' : 'FORM 1 MATHS'}</span></div>`; }
+function countdown() {
+  const ph = phase(); if (ph === 'final') return 'THE SKY IS FROZEN';
+  const ms = (ph === 'before' ? START : CLOSE) - Date.now(), d = Math.floor(ms / DAY), h = Math.floor(ms % DAY / 3600000), m = Math.floor(ms % 3600000 / 60000);
+  return (ph === 'before' ? 'STARTS IN ' : 'CLOSES IN ') + (d ? `${d}D ` : '') + `${h}H ${m}M`;
+}
+function miniStar(cls, size = 120) { const c = document.createElement('canvas'), dpr = 2; c.width = c.height = size * dpr; const g = c.getContext('2d'); g.scale(dpr, dpr); risoStar(g, size / 2, size / 2, size * .3, cls, 0, 0); return c; }
+
+// Whatever a student types ("maia jagdharry", "JOSHUA WILLIAMS", "Jah'majesty C") becomes "First L.":
+// the first name with proper capitals, and only the first letter of the surname.
+function tidyName(raw) {
+  const w = String(raw).replace(/[^A-Za-z .'\-]/g, '').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  if (!w.length) return '';
+  const fix = (x) => { if (x.includes("'") || (x.length > 1 && x === x.toUpperCase())) x = x.toLowerCase(); return x.charAt(0).toUpperCase() + x.slice(1).replace(/'([a-z])/g, (m, c) => "'" + c.toUpperCase()); };
+  const first = fix(w[0]);
+  if (w.length < 2) return first.slice(0, 24);
+  const ini = w[w.length - 1].replace(/^[^A-Za-z]+/, '').charAt(0).toUpperCase();
+  return ini ? (first + ' ' + ini + '.').slice(0, 24) : first;
+}
+function showJoin() {
+  setSky('home', 84); let cls = null, chosen = '', joinedSet = new Set();
+  app.innerHTML = soundBtn() + `<div class="spacer"></div><p class="tutcap" id="tutcap"></p>
+    <h1 class="h xl" style="transform:rotate(-2deg)">STAR FORGE</h1>
+    <p class="typed">Three classes. Three stars. Every right answer is a comet you fling into YOUR class's star. The brightest star on Tuesday night goes <b>supernova</b>.</p>
+    <div class="slip">
+      <p class="h s">1. Pick your star</p>
+      <div class="starpick">${T.classes.map(c => `<button data-c="${c.id}"><span data-slot="${c.id}"></span>${c.name}</button>`).join('')}</div>
+      <div id="step2"></div>
+    </div>
+    <button class="sticker" id="go" disabled>JOIN THE FORGE ★</button>
+    <p class="typed tiny">Up to ${T.dailyCap} right answers count each day. On ${new Date(DOUBLE_IDX * DAY + OFFSET).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Port_of_Spain' })}, every point counts double. Your class score is all its points shared over everyone on the class roll, so every student who plays makes the star bigger.</p>`;
+  T.classes.forEach(c => app.querySelector(`[data-slot=${c.id}]`).appendChild(miniStar(c.id)));
+  tutLoop = true; if (!tut) startTutorial(); $('.spacer').onclick = stopTutorial;
+  const check = () => { $('#go').disabled = !(cls && /^\S.* [A-Z]\.$/.test(chosen.trim())); };
+  const step2 = () => {
+    chosen = ''; check();
+    const list = ROSTER[cls] || [];
+    joinedSet = new Set(players.filter(p => p.cls === cls).map(p => p.name));
+    if (!list.length) {
+      $('#step2').innerHTML = `<p class="h s" style="margin-top:12px">2. Sign your name</p>
+        <input class="typein" id="nm" maxlength="40" placeholder="Maia Jagdharry" autocomplete="off" autocapitalize="words">
+        <p class="tiny">Type your first name and your surname, the way it is on the class register. The game only shows your first name and the first letter of your surname. Names with a hyphen or apostrophe (like Jazz-marie) need it typed in.</p>
+        <p class="typed" id="preview" style="margin:6px 0 0"></p>`;
+      $('#nm').oninput = () => { chosen = tidyName($('#nm').value); $('#preview').innerHTML = /^\S.* [A-Z]\.$/.test(chosen) ? `You will appear as: <b>${esc(chosen)}</b>` : (chosen ? 'Now add your surname.' : ''); check(); };
+      return;
+    }
+    $('#step2').innerHTML = `<p class="h s" style="margin-top:12px">2. Tap your name</p>
+      <input class="typein" id="find" placeholder="Type to find your name…" autocomplete="off" style="font-size:1.05rem">
+      <div class="names" id="names">${list.map(n => `<button data-n="${esc(n)}" class="${joinedSet.has(n) ? 'taken' : ''}">${esc(n)}${joinedSet.has(n) ? ' ✓' : ''}</button>`).join('')}</div>
+      <p class="tiny">✓ means that name has already joined. Not on the list? Tell Mr. Legall.</p>`;
+    const btns = [...app.querySelectorAll('#names button')];
+    btns.forEach(b => b.onclick = () => { chosen = b.dataset.n; SFX.key(); btns.forEach(x => x.classList.toggle('sel', x === b)); check(); });
+    $('#find').oninput = () => { const f = $('#find').value.toLowerCase().trim(); btns.forEach(b => b.style.display = b.dataset.n.toLowerCase().includes(f) ? '' : 'none'); };
+  };
+  app.querySelectorAll('.starpick button').forEach(b => b.onclick = () => { cls = b.dataset.c; SFX.key(); app.querySelectorAll('.starpick button').forEach(x => x.classList.toggle('sel', x === b)); step2(); });
+  wireSound();
+  $('#go').onclick = async () => {
+    const name = chosen.trim().slice(0, 24);
+    if (name.length < 2) return toast('Please choose your name.');
+    if (joinedSet.has(name) && !(await ask('ALREADY JOINED', `<b>${esc(name)}</b> has already joined Star Forge. Only carry on if this is really you on a different phone. Your points on the other phone stay there.`, 'IT IS ME', 'GO BACK'))) return;
+    if (!(await ask('CHECK THIS', `Join <b>${CLS[cls].name}</b> as <b>${esc(name)}</b>? You cannot change your class later.`, 'YES, JOIN', 'GO BACK'))) return;
+    $('#go').disabled = true;
+    try { await createPlayer(name, cls); SFX.hit(4); showHome(); }
+    catch (e) {
+      $('#go').disabled = false;
+      if (e.code === 'permission-denied') await ask('NAME NOT FOUND', `<b>${esc(name)}</b> is not on the ${CLS[cls].name} list.<br><br>Check that you picked the right star, and that you typed your first name and surname the way it is on the class register (with the hyphen or apostrophe if you have one).<br><br>If both are right, or your phone's date and time are not on Automatic, show this screen to Mr. Legall. He can approve you.`, 'TRY AGAIN', 'CLOSE');
+      else toast('Could not join: ' + (e.code || e.message));
+    }
+  };
+}
+
+let chosenTopic = 'mixed', shownPhase = null;
+function showHome() {
+  tutLoop = false; playing = false;
+  if (phase() === 'final') return showFinal();
+  if (!me) return showJoin();
+  subscribe();
+  setSky('home'); comet = null;
+  const ph = phase(); shownPhase = ph;
+  const stats = loadStats(), focus = focusTopic(stats);
+  app.innerHTML = soundBtn() + `<div class="spacer"></div>
+    ${isDouble() && ph === 'live' ? `<p class="h m" style="background:var(--yellow);padding:8px;transform:rotate(-1deg);text-align:center">★ DOUBLE POINTS TODAY ★</p>` : ''}
+    <div class="row"><h1 class="h l">STAR FORGE</h1><span class="stamp" data-cd>${countdown()}</span></div>
+    <button class="tabs-like" id="howto" style="font-family:var(--body);font-weight:700;font-size:.85rem;color:var(--blue);background:var(--paper);border:2px solid var(--blue);padding:5px 9px;margin-top:8px;cursor:pointer;box-shadow:3px 3px 0 var(--yellow)">▶ HOW IT WORKS</button><p class="tutcap home" id="tutcap"></p>
+    ${liveShell()}
+    <div class="slip tilt" id="meSlip">${meSlipHTML()}</div>
+    <div class="slip"><p class="h s">Exam readiness</p>${chipsHTML(stats, true)}
+      <p class="tiny" style="margin:4px 0 0">${focus.k !== 'mixed' ? `Suggested next: <b>${TOPICS[focus.k].label}</b>, because ${focus.why}.` : 'Every topic practised. Mixed rounds are best now.'}</p></div>
+    <div id="missionBox">${missionHTML()}</div>
+    <p class="h s" style="margin-top:14px">Or load your comets with…</p>
+    <div class="tabs">${Object.entries(TOPICS).map(([k, t]) => `<button data-t="${k}" class="${k === chosenTopic ? 'sel' : ''}">${k === 'mixed' ? '★ MIXED (LIKE THE EXAM)' : t.label.toUpperCase()}</button>`).join('')}</div>
+    <button class="sticker" id="play">LAUNCH ${T.roundLength} COMETS ➚</button>
+    <div class="slip" id="constel">${constHTML()}</div>
+    <p class="typed tiny">Star size = all the points a class has earned ÷ the students on its class roll. When more of your classmates play, your star grows.</p>
+    <p class="ver">Star Forge v${VERSION} · your phone says ${whenStr(Date.now())}</p>`;
+  app.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { chosenTopic = b.dataset.t; SFX.key(); app.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('sel', x === b)); });
+  $('#play').onclick = () => { stopTutorial(); SFX.wake(); SFX.whoosh(); playRound(chosenTopic); };
+  $('#howto').onclick = () => { scrollTo({ top: 0, behavior: 'smooth' }); tutLoop = false; startTutorial(); };
+  $('.spacer').onclick = stopTutorial;
+  $('#ticker').onclick = nextTicker;
+  bindMission();
+  patchLive(true);      // fills the live box, the feed and the ticker
+  seenSave();
+  wireSound(); scrollTo(0, 0);
+}
+
+/* ---------------- a round of comets ---------------- */
+function playRound(topic, isMission = false) {
+  tut = null; tutLoop = false;
+  playing = true; unsubscribe();   // no live updates while playing (saves the free Firebase reads)
+  setSky('play');
+  const qs = Array.from({ length: T.roundLength }, () => makeQuestion(topic));
+  const marks = [], tally = {}; let i = 0, streak = 0, typed = '', submitted = '', lastWrong = false;
+  const live = phase() === 'live';
+  const startDayPts = me.dayIdx === dayIdx() ? me.dayPts : 0;
+  const firstToday = live && (me.dayIdx !== dayIdx() || startDayPts === 0);
+  const starXY = () => [innerWidth / 2, skyH * .55 - scrollY];
+
+  const render = () => {
+    const q = qs[i], keypad = q.num !== undefined; typed = '';
+    app.innerHTML = soundBtn() + `<div class="spacer"></div>
+      <div class="dots">${qs.map((_, k) => `<i class="${k < marks.length ? (marks[k] ? 'r' : 'w') : k === i ? 'c' : ''}"></i>`).join('')}</div>
+      <div class="ticket" id="ticket"><small>${isMission && live ? '★ BONUS ROUND · ' : ''}COMET ${i + 1} OF ${qs.length} · ${TOPICS[q.topic].label.toUpperCase()}${q.again ? '<span class="again-tag">ONE LIKE THE LAST</span>' : ''}${live ? '' : ' · PRACTICE, NOT COUNTING'}</small>${q.q}</div>
+      ${keypad ? `<div class="readout" id="readout">&nbsp;</div>
+        <div class="launchpad" id="pad"><div class="cometslot" id="slot"></div></div>
+        <div class="keypad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-n="${n}">${n}</button>`).join('')}<button data-n="back">⌫</button><button data-n="0">0</button><button data-n="clr">C</button>
+        <button class="go" id="fire">LAUNCH COMET ➚</button></div>`
+      : `<div class="tiles" id="tiles">${q.opts.map((o, k) => `<button class="tile" data-k="${k}">${o}</button>`).join('')}</div>
+        <div class="launchpad" id="pad"><div class="cometslot" id="slot"></div><span class="hint">TAP AN ANSWER — OR FLICK THE COMET AT IT</span></div>`}
+      <div id="fb"></div>
+      <button class="sticker alt" id="quit" style="margin-top:18px">STOP THIS ROUND</button>`;
+    wireSound();
+    $('#quit').onclick = async () => { if (await ask('STOP THIS ROUND?', 'Points only count when you finish all the comets in a round.', 'STOP', 'KEEP PLAYING')) { removeEventListener('scroll', reanchor); comet = null; showHome(); } };
+    requestAnimationFrame(() => {
+      const r = $('#slot').getBoundingClientRect();
+      comet = { state: 'rest', x: r.left + r.width / 2, y: r.top + r.height / 2, label: '' };
+      addEventListener('scroll', reanchor, { passive: true });
+    });
+    if (keypad) wireKeypad(q); else wireTiles(q);
+  };
+  const reanchor = () => { const s = $('#slot'); if (s && comet && comet.state === 'rest') { const r = s.getBoundingClientRect(); comet.x = r.left + r.width / 2; comet.y = r.top + r.height / 2; } };
+
+  function wireKeypad(q) {
+    app.querySelectorAll('.keypad button[data-n]').forEach(b => b.onclick = () => {
+      if (answered) return; const n = b.dataset.n; SFX.key();
+      if (n === 'back') typed = typed.slice(0, -1); else if (n === 'clr') typed = ''; else if (typed.length < 6) typed = (typed === '0' ? '' : typed) + n;
+      $('#readout').innerHTML = typed ? fmt(+typed) : '&nbsp;'; if (comet) comet.label = typed ? fmt(+typed) : '';
+    });
+    $('#fire').onclick = () => { if (answered || !typed) return; submitted = typed; answer(+typed === q.num, null, q); };
+  }
+  function wireTiles(q) {
+    const tiles = [...app.querySelectorAll('.tile')];
+    tiles.forEach(t => t.onclick = () => { if (!answered) answer(+t.dataset.k === q.ans, t, q, +t.dataset.k); });
+    const pad = $('#pad'); let down = null;
+    pad.onpointerdown = (e) => { if (answered || !comet) return; down = { x: e.clientX, y: e.clientY }; pad.setPointerCapture(e.pointerId); };
+    pad.onpointermove = (e) => { if (down && comet) comet.drag = { dx: down.x - e.clientX, dy: down.y - e.clientY }; };
+    pad.onpointerup = (e) => {
+      if (!down || !comet) return; const dx = e.clientX - down.x, dy = e.clientY - down.y; down = null; comet.drag = null;
+      if (Math.hypot(dx, dy) < 30 || dy > 0) return;
+      // flick: choose the tile whose direction from the comet best matches the flick
+      let best = null, bestDot = -2; const mag = Math.hypot(dx, dy);
+      tiles.forEach(t => { const r = t.getBoundingClientRect(), tx = r.left + r.width / 2 - comet.x, ty = r.top + r.height / 2 - comet.y, dot = (tx * dx + ty * dy) / (Math.hypot(tx, ty) * mag); if (dot > bestDot) { bestDot = dot; best = t; } });
+      if (best && bestDot > .75) answer(+best.dataset.k === q.ans, best, q, +best.dataset.k);
+    };
+  }
+
+  let answered = false;
+  function answer(ok, tileEl, q, k) {
+    answered = true; marks.push(ok); streak = ok ? streak + 1 : 0;
+    tally[q.topic] = tally[q.topic] || [0, 0]; tally[q.topic][1]++; if (ok) tally[q.topic][0]++;
+    const comeback = ok && lastWrong; lastWrong = !ok;
+    // a wrong answer brings one more question like it, straight after the explanation
+    // only one repeat, so a student is never stuck on one kind of question
+    if (!ok && !q.again && i + 1 < qs.length && q.gen) { const nq = q.gen(); nq.gen = q.gen; nq.again = true; qs[i + 1] = nq; }
+    SFX.whoosh();
+    const [sx, sy] = starXY(), c = comet || { x: innerWidth / 2, y: innerHeight * .7 };
+    let tx = sx, ty = sy;
+    if (tileEl) { const r = tileEl.getBoundingClientRect(); tx = r.left + r.width / 2; ty = r.top + r.height / 2; }
+    const path = tileEl ? [[c.x, c.y, tx, ty]] : [];
+    if (ok) path.push([tileEl ? tx : c.x, tileEl ? ty : c.y, sx, sy]);
+    else if (!tileEl) path.push([c.x, c.y, c.x + (Math.random() - .5) * 120, c.y - innerHeight * .25]);
+    comet = { state: 'fly', path, leg: 0, k: 0, speed: .07, hold: 0, label: c.label, cx: c.x, cy: c.y, ang: -1.57,
+      onLeg: (leg) => {
+        if (tileEl && leg === 0) { tileEl.classList.add(ok ? 'right' : 'wrong'); if (!ok) { fizzle(tx, ty); return 'stop'; } SFX.key(); }
+        else if (!ok) { fizzle(comet.cx, comet.cy); return 'stop'; }
+        else { // hit the star
+          SFX.hit(streak); playFlare = 1; burst(sx, sy, 50, ['pink', 'yellow', 'blue'], 9);
+          if (comeback) showCombo('COMEBACK HIT!'); else if (streak >= 3) showCombo(`${streak} IN A ROW!`);
+        }
+      },
+      onDone: () => reveal(ok, q, k) };
+    function fizzle(x, y) { SFX.fizzle(); burst(x, y, 18, ['blue'], 3); const b = document.body; b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+      if (navigator.vibrate) try { navigator.vibrate(60); } catch (e) { } }
+  }
+  function showCombo(text) { const d = document.createElement('div'); d.className = 'combo'; d.textContent = text; document.body.appendChild(d); setTimeout(() => d.remove(), 2000); }
+  function reveal(ok, q) {
+    if (q.num === undefined) app.querySelectorAll('.tile').forEach((t, j) => { t.disabled = true; if (j === q.ans) t.classList.add('right'); });
+    else $('#readout').innerHTML = ok ? fmt(q.num) : `<s>${fmt(+submitted)}</s> &nbsp;${fmt(q.num)}`;
+    $('#fb').innerHTML = `<div class="why"><b class="${ok ? 'ok' : 'no'}">${ok ? 'DIRECT HIT!' : 'FIZZLED.'}</b> ${q.why}</div>
+      ${!ok && !q.again && i + 1 < qs.length ? '<p class="tiny">The next comet is one like this, so you can try again.</p>' : ''}
+      <button class="sticker" id="next">${i + 1 < qs.length ? 'NEXT COMET ➚' : 'COUNT MY HITS'}</button>`;
+    $('#next').onclick = (e) => { e.currentTarget.disabled = true; answered = false; i++; i < qs.length ? render() : finish(); };
+    $('#next').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function finish() {
+    removeEventListener('scroll', reanchor); comet = null;
+    const right = marks.filter(Boolean).length; let gain = 0, missionPts = 0; const allStats = addStats(tally), focus = focusTopic(allStats);
+    const beforeSnap = live ? rankSnap() : null;     // where we stand before this round is counted
+    if (live) { const cap = dayCapPts(); let pts = startDayPts; if (firstToday) { gain += T.dailyBonus; pts += T.dailyBonus; }
+      const per = ppc() + (isMission ? T.missionBonus : 0);
+      for (let k = 0; k < right; k++) { if (pts + per <= cap) { gain += per; pts += per; if (isMission) missionPts += T.missionBonus; } else if (pts + ppc() <= cap) { gain += ppc(); pts += ppc(); } }
+      saveRound(gain, tally); }
+    const afterSnap = live ? rankSnap() : null;
+    playing = false; subscribe();    // start listening again, so the live race on this screen keeps moving
+    seenSave();
+    setSky('home');
+    const capped = live && gain < right * (ppc() + (isMission ? T.missionBonus : 0)) + (firstToday ? T.dailyBonus : 0);
+    app.innerHTML = soundBtn() + `<div class="spacer"></div>
+      <h1 class="h xl" style="text-align:center;transform:rotate(-3deg)">${right} / ${qs.length} HITS</h1>
+      <div class="slip" style="text-align:center">
+        ${live ? `<p class="h m ink-${me.cls}">+${gain} FOR ${CLS[me.cls].name.toUpperCase()}</p>${firstToday ? `<p class="tiny">Includes +${T.dailyBonus} for your first round today.</p>` : ''}
+          ${missionPts ? `<p class="tiny">Includes +${missionPts} class mission bonus.</p>` : ''}
+          ${capped ? `<p class="typed">Your star fuel is full for today. More rounds will not add points, but every question still sharpens you for the exam. Come back tomorrow for more points.</p>` : ''}`
+        : `<p class="typed">Practice round. Comets do not count right now.</p>`}
+      </div>
+      ${movedHTML(beforeSnap, afterSnap, gain)}
+      <div class="slip tilt"><p class="h s">This round</p>${chipsHTML(tally, false).replace(/<span class="none">[^<]*<\/span>/g, '')}
+        <p class="h s" style="margin-top:10px">All your rounds so far</p>${chipsHTML(allStats, true)}
+        ${focus.k !== 'mixed' ? `<p class="typed" style="margin:6px 0 0">Next, practise <b>${TOPICS[focus.k].label}</b>: ${focus.why}.</p>` : ''}</div>
+      ${focus.k !== 'mixed' ? `<button class="sticker" id="focus">LAUNCH A ${TOPICS[focus.k].label.toUpperCase()} ROUND ➚</button>` : ''}
+      <button class="sticker ${focus.k !== 'mixed' ? 'alt' : ''}" id="again">${isMission ? 'ANOTHER BONUS ROUND' : 'LAUNCH ANOTHER ' + (topic === 'mixed' ? 'MIXED' : TOPICS[topic].label.toUpperCase()) + ' ROUND'} ➚</button>
+      <button class="sticker alt" id="home">SEE THE SKY</button>
+      ${live ? liveShell() : ''}`;
+    wireSound(); scrollTo(0, 0);
+    if (live) { $('#ticker').onclick = nextTicker; patchLive(true); }
+    if (gain > 0) { const L = starLayout().find(s => s.id === me.cls); if (L) { burst(L.x, L.y, 70, ['pink', 'yellow'], 10); SFX.hit(6); } }
+    $('#again').onclick = () => { SFX.whoosh(); playRound(topic, isMission); }; $('#home').onclick = showHome;
+    if ($('#focus')) $('#focus').onclick = () => { SFX.whoosh(); chosenTopic = focus.k; playRound(focus.k); };
+  }
+  const onKey = (e) => {
+    if (!document.body.contains($('#ticket'))) { removeEventListener('keydown', onKey); return; }
+    if (answered) { if (e.key === 'Enter' && $('#next')) $('#next').click(); return; }
+    if ($('.keypad')) { if (/^[0-9]$/.test(e.key)) $(`.keypad button[data-n="${e.key}"]`).click(); else if (e.key === 'Backspace') $('.keypad button[data-n="back"]').click(); else if (e.key === 'Enter') $('#fire').click(); }
+    else if (/^[1-4]$/.test(e.key)) { const t = $(`.tile[data-k="${+e.key - 1}"]`); if (t) t.click(); }
+  };
+  addEventListener('keydown', onKey);
+  render();
+}
+
+/* ---------------- final night: supernova + badges ---------------- */
+function drawBadge(s, rank) {
+  const W = 600, c = document.createElement('canvas'); c.width = c.height = W; const g = c.getContext('2d');
+  g.fillStyle = INK.paper; g.fillRect(0, 0, W, W);
+  g.fillStyle = INK.blue; for (let y = 0; y < W * .62; y += 10) for (let x = (y / 10) % 2 ? 5 : 0; x < W; x += 10) { const r = Math.max(.6, 4.6 * (1 - y / (W * .62))); g.beginPath(); g.arc(x, y, r, 0, 6.3); g.fill(); }
+  if (rank === 0) { g.save(); g.globalCompositeOperation = 'multiply'; for (let k = 0; k < 20; k++) { const a = k * Math.PI / 10; g.strokeStyle = k % 2 ? INK.pink : INK.yellow; g.lineWidth = 10; g.beginPath(); g.moveTo(W / 2, 250); g.lineTo(W / 2 + 330 * Math.cos(a), 250 + 330 * Math.sin(a)); g.stroke(); } g.restore(); }
+  risoStar(g, W / 2, 250, rank === 0 ? 165 : 140, s.id, 0, 0);
+  g.textAlign = 'center';
+  g.font = `56px 'Bowlby One', serif`; g.fillStyle = INK.paper; g.fillText(place(rank).toUpperCase(), W / 2 + 3, 272); g.fillStyle = INK.blue; g.fillText(place(rank).toUpperCase(), W / 2, 269);
+  g.font = `48px 'Bowlby One', serif`; g.fillStyle = INK.pink; g.fillText(s.name.toUpperCase(), W / 2 + 3, 486); g.fillStyle = INK.blue; g.fillText(s.name.toUpperCase(), W / 2, 483);
+  g.font = `700 28px 'Courier Prime', monospace`; g.fillStyle = INK.blue; g.fillText(`${one(s.score)} points per student`, W / 2, 525);
+  g.font = `700 20px 'Courier Prime', monospace`; g.fillText(`STAR FORGE · FORM 1 MATHS · CUCSS · 2026`, W / 2, 566);
+  if (rank === 0) { g.save(); g.translate(W / 2, 46); g.rotate(-.05); g.fillStyle = INK.yellow; g.fillRect(-200, -30, 400, 50); g.font = `34px 'Bowlby One', serif`; g.fillStyle = INK.blue; g.fillText('★ SUPERNOVA ★', 0, 8); g.restore(); }
+  // paper grain on the badge
+  const d = g.getImageData(0, 0, W, W); for (let i = 0; i < d.data.length; i += 4) { const n = (Math.random() - .5) * 26; d.data[i] += n; d.data[i + 1] += n; d.data[i + 2] += n; } g.putImageData(d, 0, 0);
+  return c;
+}
+function showFinal() {
+  setSky('home'); const st = standings(), w = st[0], tie = st.length > 1 && one(st[1].score) === one(w.score);
+  if (!anim.supernova) { anim.supernova = performance.now() + 600; setTimeout(() => SFX.supernova(), 600); }
+  const c = liveCtx();
+  app.innerHTML = soundBtn() + `<div class="spacer"></div>
+    <p class="typed" style="text-align:center">The sky is frozen. The brightest ${tie ? 'stars are… a tie!' : 'star is…'}</p>
+    <h1 class="h xl ink-${w.id}" style="text-align:center;transform:rotate(-2deg)">${tie ? st.filter(s => one(s.score) === one(w.score)).map(s => s.name.toUpperCase()).join(' & ') : w.name.toUpperCase()}</h1>
+    <p class="h s" style="text-align:center">SUPERNOVA · ${one(w.score)} POINTS PER STUDENT</p>
+    <p class="typed tiny" style="text-align:center">${st.map((s, i) => `${place(i)}: ${s.name} (${one(s.score)})`).join(' · ')}</p>
+    ${c ? `<div class="slip tilt"><p class="h s ink-${me.cls}">YOUR RESULT</p><p class="typed" style="margin:6px 0 0">${esc(me.name)} · ${CLS[me.cls].name}: <b>${me.total} points</b> from ${me.rounds} rounds. You finished <b>${ordinal(c.myPos + 1)}</b> of ${c.nPlayers} players in your class.</p></div>` : ''}
+    <p class="h m" style="margin-top:22px">Class badges</p><p class="typed tiny">Tap a button to save your class badge.</p>
+    <div class="badges" id="badges"></div>
+    <p class="h m" style="margin-top:22px">The constellations</p>
+    ${st.map(s => `<div class="slip"><p class="h s ink-${s.id}">${s.name}</p><ol class="typed" style="margin:6px 0 0 18px;padding:0">${s.top.map(p => `<li>${esc(p.name)} — ${p.total}</li>`).join('') || '<li>—</li>'}</ol></div>`).join('')}
+    <p class="h m" style="text-align:center;margin-top:20px">Good luck in the exam!</p>
+    <button class="sticker alt" id="prac">KEEP PRACTISING (NO POINTS)</button>`;
+  document.fonts.ready.then(() => { if (!$('#badges')) return; st.forEach((s, i) => {
+    const wrap = document.createElement('div'), cv = drawBadge(s, st.findIndex(x => one(x.score) === one(s.score))), btn = document.createElement('button');
+    btn.className = 'sticker alt'; btn.textContent = `⬇ SAVE ${s.name.toUpperCase()} BADGE`;
+    btn.onclick = () => { const a = document.createElement('a'); a.href = cv.toDataURL('image/png'); a.download = `${s.name.replace(/\s+/g, '-')}-Star-Forge-badge.png`; a.click(); };
+    wrap.appendChild(cv); wrap.appendChild(btn); $('#badges').appendChild(wrap);
+  }); });
+  wireSound(); $('#prac').onclick = () => { if (me) playRound('mixed'); else toast('Join from your own phone to practise.'); };
+}
+/* ---------------- the projector board: sky on top, the race and the latest rounds underneath ---------------- */
+function patchBoard() {
+  const el = $('#boardFeed'); if (!el) return;
+  const st = standings(), ph = phase(), typ = TYP_HITS * ppc();
+  const lines = st.map((s, i) => `<div class="blrow"><b class="ink-${s.id}">${place(i)} ${s.name}</b> · ${one(s.score)} pts/student · ${s.playedToday} of ${s.size} played today · ${activeCount(s.id)} active in the last 15 min</div>`).join('');
+  const lead = st[0], second = st[1], gap = ptsToPass(second, lead);
+  const story = ph === 'final' ? '' : lead.sum === 0 ? 'Nobody has scored yet. The first comet is waiting!' : `${lead.name} leads. ${second.name} needs ${gap} more points to pass it, about ${Math.ceil(gap / typ)} rounds.`;
+  const recent = players.filter(p => p.last > 0).sort((a, b) => b.last - a.last).slice(0, 6);
+  el.innerHTML = `<div class="bgrid"><div>${lines}<p class="bstory">${esc(story)}</p></div>
+    <div><p class="h s">JUST FINISHED</p><ul class="feed">${recent.map(p => `<li><b class="ink-${p.cls}">${esc(p.name)}</b> ${p.lastGain ? '+' + p.lastGain : ''} <span class="tiny">· ${CLS[p.cls].name} · ${ago(p.last)}</span></li>`).join('') || '<li>Waiting for the first comets…</li>'}</ul></div></div>`;
+}
+function showBoard() {
+  document.body.classList.add('wide');
+  if (phase() === 'final') { setSky('home'); if (!anim.supernova) { anim.supernova = performance.now() + 600; setTimeout(() => SFX.supernova(), 600); } }
+  else setSky('home');
+  app.innerHTML = `<div class="spacer"></div>
+    <div class="row" style="max-width:1100px;margin:0 auto"><h1 class="h l">STAR FORGE · THE SKY OVER ARIMA</h1>
+    <span class="stamp" data-cd style="font-size:1.2rem">${phase() === 'final' ? 'SUPERNOVA: ' + standings()[0].name.toUpperCase() : countdown()}</span></div>
+    ${isDouble() && phase() === 'live' ? '<p class="h m" style="text-align:center">★ DOUBLE POINTS TODAY ★</p>' : ''}
+    <div id="boardFeed"></div>`;
+  patchBoard();
+}
+function showTeacher() {
+  setSky('none'); const t = dayIdx();
+  app.innerHTML = `<h1 class="h l" style="padding-top:16px">STAR FORGE · TEACHER VIEW</h1><p class="typed tiny">${players.length} players · ${DEMO ? 'demo data' : 'live data'} · v${VERSION}</p>` +
+    T.classes.map(c => { const ps = players.filter(p => p.cls === c.id).sort((a, b) => b.total - a.total), today = ps.filter(p => p.dayIdx === t && p.rounds > 0).length;
+      return `<div class="slip"><p class="h m ink-${c.id}">${c.name} <span class="typed tiny">(${ps.length} of ${c.size} joined · ${today} played today · ${activeCount(c.id)} active in the last 15 min)</span></p>
+      ${(() => { const m = classMission(c.id); return `<table class="typed" style="margin-bottom:10px"><tr><th>Topic</th><th>Hits</th><th>Tries</th><th>% right</th></tr>${['ops', 'number', 'algebra', 'powers', 'fractions'].map(k => `<tr><td>${TOPICS[k].label}${k === m.k ? ' ★ mission' : ''}</td><td>${m.hits[k]}</td><td>${m.tries[k]}</td><td>${m.tries[k] ? Math.round(100 * m.hits[k] / m.tries[k]) + '%' : '—'}</td></tr>`).join('')}</table>`; })()}
+      <table class="typed"><tr><th>Name</th><th>Total</th><th>Today</th><th>Rounds</th><th>Last round</th></tr>${ps.map(p => `<tr><td>${esc(p.name)}</td><td>${p.total}</td><td>${p.dayIdx === t ? p.dayPts : 0}</td><td>${p.rounds}</td><td>${p.last ? (p.lastGain ? '+' + p.lastGain + ' · ' : '') + ago(p.last) : '—'}</td></tr>`).join('')}</table></div>`; }).join('');
+}
+function ask(title, msg, yes, no = 'CANCEL') {
+  return new Promise(res => {
+    const m = document.createElement('div'); m.className = 'modal';
+    m.innerHTML = `<div><p class="h m">${title}</p><p class="typed">${msg}</p><div class="row"><button class="sticker alt" data-a="0">${no}</button><button class="sticker" data-a="1">${yes}</button></div></div>`;
+    m.querySelectorAll('button').forEach(b => b.onclick = () => { m.remove(); res(b.dataset.a === '1'); });
+    document.body.appendChild(m);
+  });
+}
+/* per-topic record, kept on this phone only, to suggest what to practise next */
+const TOPIC_KEYS = ['ops', 'number', 'algebra', 'powers', 'fractions'];
+function loadStats() { try { return JSON.parse(localStorage.getItem('sf-stats')) || {}; } catch (e) { return {}; } }
+function addStats(tally) { const s = loadStats(); for (const k in tally) { s[k] = s[k] || [0, 0]; s[k][0] += tally[k][0]; s[k][1] += tally[k][1]; } localStorage.setItem('sf-stats', JSON.stringify(s)); return s; }
+function focusTopic(s) {
+  const tried = TOPIC_KEYS.filter(k => s[k] && s[k][1] >= 3);
+  const untried = TOPIC_KEYS.filter(k => !s[k] || s[k][1] < 3);
+  if (untried.length && tried.length < 3) return { k: untried[0], why: 'you have hardly practised it yet' };
+  const worst = tried.sort((a, b) => s[a][0] / s[a][1] - s[b][0] / s[b][1])[0];
+  return worst ? { k: worst, why: `it is your weakest so far (${Math.round(100 * s[worst][0] / s[worst][1])}% right)` } : { k: 'mixed', why: '' };
+}
+function chipsHTML(s, compact) {
+  return `<div class="chips">${TOPIC_KEYS.map(k => { const v = s[k]; if (!v || !v[1]) return `<span class="none">${TOPICS[k].label}: —</span>`;
+    const p = v[0] / v[1]; return `<span class="${p < .6 ? 'weak' : p >= .8 ? 'good' : ''}">${TOPICS[k].label}: ${compact ? Math.round(p * 100) + '%' : v[0] + '/' + v[1]}</span>`; }).join('')}</div>`;
+}
+function offlineBanner() { let b = $('.offline'); if (!navigator.onLine) { if (!b) { b = document.createElement('div'); b.className = 'offline'; b.textContent = 'No signal. You can keep playing — your points will send when you are back online today.'; document.body.appendChild(b); } } else if (b) b.remove(); }
+addEventListener('online', offlineBanner); addEventListener('offline', offlineBanner);
+function toast(msg) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = msg; document.body.appendChild(d); setTimeout(() => d.remove(), 4500); }
+
+/* ============================ START ============================ */
+// every 10 seconds: countdowns, and the moment the forge opens (or closes) while a student has the page open
+setInterval(() => {
+  document.querySelectorAll('[data-cd]').forEach(e => e.textContent = countdown());
+  if (view === 'player' && shownPhase && phase() !== shownPhase && $('#play')) {
+    const was = shownPhase; showHome();
+    if (was === 'before' && phase() === 'live') { toast('★ THE FORGE IS OPEN! Your comets count now. ★'); SFX.hit(6); }
+  }
+}, 10000);
+// the ticker turns to its next line, and the live box refreshes its "minutes ago" even when nobody scores
+setInterval(() => { if (!document.hidden) nextTicker(); }, 9000);
+setInterval(() => { if (!document.hidden && $('#liveBox') && me) { patchLive(); clockCheck(); } if (!document.hidden && view === 'board') patchBoard(); }, 20000);
+// a phone that is hidden for a while stops listening (saves the free Firebase reads) and starts again on return
+let hideT = 0;
+document.addEventListener('visibilitychange', () => {
+  if (view === 'board') return;
+  if (document.hidden) { hideT = setTimeout(unsubscribe, 45000); seenSave(); }
+  else { clearTimeout(hideT); if (!playing) subscribe(); }
+});
+addEventListener('pagehide', seenSave);
+// a floating PLAY button while the real one is further down the page
+const fab = document.createElement('button'); fab.className = 'fab'; fab.textContent = '▶ PLAY A ROUND'; fab.hidden = true; document.body.appendChild(fab);
+fab.onclick = () => { const p = $('#play'); if (p) p.click(); };
+setInterval(() => { const p = $('#play'); fab.hidden = !(view === 'player' && p && !playing && p.getBoundingClientRect().top > innerHeight - 30); }, 400);
+sizeCanvases(); requestAnimationFrame(loop); offlineBanner();
+try {
+  await Promise.race([initData(), new Promise((_, rej) => setTimeout(() => rej({ code: 'slow' }), 25000))]);
+  let lastOrder = standings().map(s => s.id).join();
+  let teacherTimer = 0;
+  listeners.push(() => {
+    clockCheck();
+    const order = standings().map(s => s.id).join();
+    if (order !== lastOrder && view !== 'teacher' && phase() !== 'final') {
+      const was = lastOrder.split(','), now = order.split(','), lead = standings()[0];
+      now.forEach((id, i) => { if (was.indexOf(id) > i) news.push({ t: Date.now(), text: `${CLS[id].name} climbed to ${place(i)}` }); });
+      if (news.length > 6) news.splice(0, news.length - 6);
+      if (lead.id !== was[0]) { toast(`★ ${lead.name.toUpperCase()} TAKES 1ST PLACE! ★`); SFX.hit(5); const L = starLayout().find(x => x.id === lead.id); if (L) burst(L.x, L.y - scrollY, 60, ['pink', 'yellow'], 9); }
+      lastOrder = order;
+    }
+    if (view === 'teacher') { if (!teacherTimer) teacherTimer = setTimeout(() => { teacherTimer = 0; const y = scrollY; showTeacher(); scrollTo(0, y); }, 2500); return; }
+    if (view === 'board') { patchBoard(); return; }   // the sky redraws itself every frame
+    if (phase() === 'final') { if (!document.querySelector('.tile, .keypad')) { if (!$('#badges')) showFinal(); } return; }
+    if ($('#liveBox') && me) schedulePatch();          // update the live box in place, without moving the page
+  });
+  clockCheck();
+  if (view === 'board') showBoard(); else if (view === 'teacher') showTeacher(); else showHome();
+  setInterval(() => { if (view === 'board') showBoard(); }, 60000);
+} catch (e) {
+  app.innerHTML = `<div class="spacer"></div><div class="slip"><p class="h m">THE SKY IS SLOW TO LOAD</p><p class="typed">This usually means a weak signal. Move closer to the Wi-Fi, or try your data, then tap the button. Your points are safe.</p><button class="sticker" id="retry">TRY AGAIN</button><p class="tiny">${esc(e.code || e.message)}</p></div>`;
+  $('#retry').onclick = () => location.reload();
+}
+</script>
+</body>
+</html>
