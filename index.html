@@ -999,7 +999,7 @@ function showJoin() {
     joinedSet = new Set(players.filter(p => p.cls === cls).map(p => p.name));
     if (!list.length) {
       $('#step2').innerHTML = `<p class="h s" style="margin-top:12px">2. Sign your name</p>
-        <input class="typein" id="nm" maxlength="40" placeholder="Maia Jagdharry" autocomplete="off" autocapitalize="words">
+        <input class="typein" id="nm" maxlength="40" placeholder="First name and surname" autocomplete="off" autocapitalize="words">
         <p class="tiny">Type your first name and your surname, the way it is on the class register. The game only shows your first name and the first letter of your surname. Names with a hyphen or apostrophe (like Jazz-marie) need it typed in.</p>
         <p class="typed" id="preview" style="margin:6px 0 0"></p>`;
       $('#nm').oninput = () => { chosen = tidyName($('#nm').value); $('#preview').innerHTML = /^\S.* [A-Z]\.$/.test(chosen) ? `You will appear as: <b>${esc(chosen)}</b>` : (chosen ? 'Now add your surname.' : ''); check(); };
